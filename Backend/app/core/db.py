@@ -40,7 +40,6 @@ class Token(Base):
 class Employee(Base):
     __tablename__ = "employee"
 
-    # Personal information
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
@@ -53,7 +52,6 @@ class Employee(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     role: Mapped[str] = mapped_column(String(20), nullable=False)
 
-    # Employment info
     employment_type: Mapped[str] = mapped_column(String(20), nullable=True)
     employment_degree: Mapped[int] = mapped_column(Integer, nullable=True)
     weekly_hours: Mapped[int] = mapped_column(Integer, nullable=True)
@@ -138,12 +136,10 @@ class Customer(Base):
     key_number: Mapped[str] = mapped_column(String(50), nullable=False)
     address: Mapped[str] = mapped_column(String(255), nullable=False)
     care_level: Mapped[str] = mapped_column(String(20), nullable=True)
-    gender: Mapped[str] = mapped_column(
-        String(10), nullable=True
-    )  # "male" eller "female"
+    gender: Mapped[str] = mapped_column(String(10), nullable=True)
     approved_hours: Mapped[float | None] = mapped_column(
         Float, nullable=True, default=None
-    )  # Beviljade timmar per månad
+    )
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
@@ -199,12 +195,10 @@ class CareVisit(Base):
     duration: Mapped[int] = mapped_column(Integer, nullable=False)
     notes: Mapped[str] = mapped_column(String(255), nullable=True)
 
-    # Tidsstämplar
     created: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )
 
-    # Relationer
     schedule_id: Mapped[int] = mapped_column(ForeignKey("schedules.id"), nullable=False)
     schedule: Mapped["Schedule"] = relationship(
         "Schedule", back_populates="care_visits"
@@ -234,7 +228,6 @@ class Schedule(Base):
     date: Mapped[date_type] = mapped_column(Date, nullable=False)
     shift: Mapped[str] = mapped_column(String(20), nullable=False)
 
-    # Relationer
     employees: Mapped[List["ScheduleEmployee"]] = relationship(
         back_populates="schedule"
     )
@@ -244,7 +237,6 @@ class Schedule(Base):
     )
     care_visits: Mapped[List["CareVisit"]] = relationship(back_populates="schedule")
 
-    # Tidsstämplar
     created: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )
@@ -292,12 +284,10 @@ class Absence(Base):
 class ScheduleArchive(Base):
     __tablename__ = "schedule_archives"
 
-    # Grundläggande schemainformation
     original_schedule_id: Mapped[int] = mapped_column(Integer, nullable=False)
     original_date: Mapped[date_type] = mapped_column(Date, nullable=False)
     shift: Mapped[str] = mapped_column(String(20), nullable=False)
 
-    # Analytisk data
     employee_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     customer_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     measure_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -363,7 +353,6 @@ class ScheduleCustomer(Base):
         ForeignKey("customers.id"), primary_key=True
     )
 
-    # Relationer
     schedule: Mapped["Schedule"] = relationship(back_populates="customers")
     customer: Mapped["Customer"] = relationship(back_populates="schedules")
 
@@ -376,7 +365,6 @@ class MeasureCareVisit(Base):
         ForeignKey("care_visits.id"), primary_key=True
     )
 
-    # Relationer
     measure: Mapped["Measure"] = relationship(back_populates="care_visits")
     care_visit: Mapped["CareVisit"] = relationship(back_populates="measures")
 
