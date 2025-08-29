@@ -44,6 +44,19 @@ class VisitStatus(str, Enum):
     RESCHEDULED = "rescheduled"
 
 
+class TimeOfDay(str, Enum):
+    MORNING = "morning"
+    DAY = "day"
+    EVENING = "evening"
+    NIGHT = "night"
+
+
+class TimeFlexibility(str, Enum):
+    STRICT = "strict"
+    STANDARD = "standard"
+    FLEXIBLE = "flexible"
+
+
 # =====================================
 
 
