@@ -115,7 +115,6 @@ class EmployeeBaseSchema(BaseModel):
     birth_date: str
     is_active: bool = True
 
-    # info
     employment_type: str
     employment_degree: int | None = 100
     weekly_hours: int | None = 40
@@ -123,3 +122,159 @@ class EmployeeBaseSchema(BaseModel):
     is_summer_worker: bool | None = False
     start_date: datetime
     end_date: datetime
+
+
+class EmployeeCreateSchema(EmployeeBaseSchema):
+    pass
+
+
+class EmployeeUpdateSchema(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    email: EmailStr | None = None
+    phone: str | None = None
+    role: RoleType | None = None
+    gender: Gender
+    birth_date: str | None = None
+    is_active: bool | None = None
+
+    employment_type: str | None = None
+    employment_degree: int | None = None
+    weekly_hours: int | None = None
+    vacation_days: int | None = None
+    is_summer_worker: bool | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+
+
+class EmployeeOutSchema(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone: str
+    role: RoleType
+    is_active: bool
+    birth_date: str
+    created: datetime
+    updated: datetime
+    gender: Gender
+
+    employment_type: str | None = None
+    employment_degree: int | None = None
+    weekly_hours: int | None = None
+    vacation_days: int | None = None
+    is_summer_worker: bool | None = None
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Customer schemas
+class CustomerBaseSchema(BaseModel):
+    first_name: str
+    last_name: str
+    key_number: str
+    address: str
+    care_level: CareLevel
+    gender: Gender
+    approved_hours: float
+    is_active: bool
+
+
+class CustomerCreateSchema(CustomerBaseSchema):
+    pass
+
+
+class CustomerUpdateSchema(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    key_number: str | None = None
+    address: str | None = None
+    care_level: str | None = None
+    gender: Gender
+    approved_hours: float | None = None
+    is_active: bool | None = None
+
+
+class CustomerOutSchema(CustomerBaseSchema):
+    id: int
+    created: datetime
+    updated: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Measure schemas
+class MeasureBaseSchema(BaseModel):
+    name: str
+    default_duration: int
+    text: str | None = None
+    time_of_day: TimeOfDay | None = None
+    time_flexibility: TimeFlexibility | None = TimeFlexibility.STANDARD
+
+
+class MeasureCreateSchema(MeasureBaseSchema):
+    pass
+
+
+class MeasureUpdateSchema(BaseModel):
+    name: str | None = None
+    default_duration: int | None = None
+    text: str | None = None
+    time_of_day: TimeOfDay | None = None
+    time_flexibility: TimeFlexibility | None = None
+
+
+class MeasureOutSchema(MeasureBaseSchema):
+    id: int
+    created: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+# Schedule schemas
+class ScheduleBaseSchema(BaseModel):
+    date: datetime
+    shift: ShiftType
+
+
+class ScheduleCreateSchema(ScheduleBaseSchema):
+    pass
+
+
+class ScheduleUpdateSchema(BaseModel):
+    date: datetime | None = None
+    shift: ShiftType | None = None
+
+
+class ScheduleOutSchema(ScheduleBaseSchema):
+    id: int
+    created: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+# CareVisit schemas
+class CareVisitBaseSchema(BaseModel):
+    date: datetime
+    status: VisitStatus
+    duration: int
+    notes: str | None = None
+    schedule_id: int
+
+
+class CareVisitCreateSchema(CareVisitBaseSchema):
+    pass
+
+
+class CareVisitUpdateSchema(BaseModel):
+    date: datetime | None = None
+    status: VisitStatus | None = None
+    duration: int | None = None
+    notes: str | None = None
+    schedule_id: int | None = None
+    model_config = ConfigDict(exclude_none=True)
+
+
+class CareVisitOutSchema(CareVisitBaseSchema):
+    id: int
+    created: datetime
+    model_config = ConfigDict(from_attributes=True)
