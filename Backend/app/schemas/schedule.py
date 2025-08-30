@@ -8,10 +8,6 @@ class ScheduleBaseSchema(BaseModel):
     shift: ShiftType
 
 
-class ScheduleCreateSchema(ScheduleBaseSchema):
-    pass
-
-
 class ScheduleUpdateSchema(BaseModel):
     date: datetime | None = None
     shift: ShiftType | None = None

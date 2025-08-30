@@ -11,10 +11,6 @@ class MeasureBaseSchema(BaseModel):
     time_flexibility: TimeFlexibility | None = TimeFlexibility.STANDARD
 
 
-class MeasureCreateSchema(MeasureBaseSchema):
-    pass
-
-
 class MeasureUpdateSchema(BaseModel):
     name: str | None = None
     default_duration: int | None = None

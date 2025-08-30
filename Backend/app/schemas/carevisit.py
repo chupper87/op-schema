@@ -11,10 +11,6 @@ class CareVisitBaseSchema(BaseModel):
     schedule_id: int
 
 
-class CareVisitCreateSchema(CareVisitBaseSchema):
-    pass
-
-
 class CareVisitUpdateSchema(BaseModel):
     date: datetime | None = None
     status: VisitStatus | None = None

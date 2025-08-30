@@ -14,10 +14,6 @@ class CustomerBaseSchema(BaseModel):
     is_active: bool
 
 
-class CustomerCreateSchema(CustomerBaseSchema):
-    pass
-
-
 class CustomerUpdateSchema(BaseModel):
     first_name: str | None = None
     last_name: str | None = None

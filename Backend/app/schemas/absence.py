@@ -12,10 +12,6 @@ class AbsenceBaseSchema(BaseModel):
     hours: int
 
 
-class AbsenceCreateSchema(AbsenceBaseSchema):
-    pass
-
-
 class AbsenceUpdateSchema(BaseModel):
     start_date: datetime | None = None
     end_date: datetime | None = None
