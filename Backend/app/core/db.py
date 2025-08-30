@@ -13,7 +13,14 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from models.schemas import RoleType, CareLevel, ShiftType, VisitStatus, AbsenceType
+from Backend.app.schemas.schemas import (
+    RoleType,
+    CareLevel,
+    ShiftType,
+    VisitStatus,
+    AbsenceType,
+)
+
 
 ####################################################################################
 
