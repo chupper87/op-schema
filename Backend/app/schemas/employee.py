@@ -7,7 +7,7 @@ class EmployeeBaseSchema(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    phone: str
+    phone: str | None
     gender: Gender
     role: RoleType
     birth_date: str
