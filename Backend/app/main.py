@@ -1,11 +1,11 @@
-from core.db_setup import init_db
+from core.db_setup import create_db_and_tables
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    create_db_and_tables()
     yield
 
 
