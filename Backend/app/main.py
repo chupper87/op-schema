@@ -1,11 +1,11 @@
+from core.db_setup import init_db
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("💾 App starting up...")
-
+    init_db()
     yield
 
 
