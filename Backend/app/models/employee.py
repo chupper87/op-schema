@@ -70,7 +70,7 @@ class EmployeeCareVisit(Base):
     __tablename__ = "employee_care_visit"
 
     employee_id: Mapped[int] = mapped_column(
-        ForeignKey("employees.id"), primary_key=True
+        ForeignKey("employee.id"), primary_key=True
     )
     care_visit_id: Mapped[int] = mapped_column(
         ForeignKey("care_visits.id"), primary_key=True

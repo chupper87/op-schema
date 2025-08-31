@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class Absence(Base):
     __tablename__ = "absences"
 
-    employee_id: Mapped[int] = mapped_column(ForeignKey("employees.id"), nullable=False)
+    employee_id: Mapped[int] = mapped_column(ForeignKey("employee.id"), nullable=False)
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
     absence_type: Mapped[str] = mapped_column(String(20), nullable=False)

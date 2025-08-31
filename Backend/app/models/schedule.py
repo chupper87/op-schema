@@ -85,7 +85,7 @@ class ScheduleEmployee(Base):
         ForeignKey("schedules.id"), primary_key=True
     )
     employee_id: Mapped[int] = mapped_column(
-        ForeignKey("employees.id"), primary_key=True
+        ForeignKey("employee.id"), primary_key=True
     )
 
     schedule: Mapped["Schedule"] = relationship(back_populates="employees")

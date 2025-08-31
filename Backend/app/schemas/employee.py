@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from datetime import datetime
+from datetime import datetime, date
 from core.enums import Gender, RoleType
 
 
@@ -18,8 +18,8 @@ class EmployeeBaseSchema(BaseModel):
     weekly_hours: int | None = 40
     vacation_days: int | None = 25
     is_summer_worker: bool | None = False
-    start_date: datetime
-    end_date: datetime
+    start_date: date
+    end_date: date
 
 
 class EmployeeCreateSchema(EmployeeBaseSchema):
@@ -41,8 +41,8 @@ class EmployeeUpdateSchema(BaseModel):
     weekly_hours: int | None = None
     vacation_days: int | None = None
     is_summer_worker: bool | None = None
-    start_date: datetime | None = None
-    end_date: datetime | None = None
+    start_date: date | None = None
+    end_date: date | None = None
 
 
 class EmployeeOutSchema(BaseModel):
@@ -63,6 +63,6 @@ class EmployeeOutSchema(BaseModel):
     weekly_hours: int | None = None
     vacation_days: int | None = None
     is_summer_worker: bool | None = None
-    start_date: datetime | None = None
-    end_date: datetime | None = None
+    start_date: date | None = None
+    end_date: date | None = None
     model_config = ConfigDict(from_attributes=True)
