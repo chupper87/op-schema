@@ -66,6 +66,7 @@ __all__ = [
     "ScheduleOutSchema",
     "ScheduleUpdateSchema",
     "Token",
+    "TokenData",
     "UserLoginSchema",
     "UserOutSchema",
     "UserRegisterSchema",

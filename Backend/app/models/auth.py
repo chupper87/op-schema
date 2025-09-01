@@ -41,7 +41,7 @@ class User(Base):
     )
 
     # Relationships
-    employee_id: Mapped[int] = mapped_column(ForeignKey("employees.id"), nullable=False)
+    employee_id: Mapped[int] = mapped_column(ForeignKey("employee.id"), nullable=False)
     employee: Mapped["Employee"] = relationship("Employee")
     tokens: Mapped[List["Token"]] = relationship(back_populates="user")
 
