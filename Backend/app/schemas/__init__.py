@@ -25,7 +25,7 @@ from .schedule_archive import (
     ScheduleArchiveOutSchema,
 )
 from .schedule import ScheduleBaseSchema, ScheduleOutSchema, ScheduleUpdateSchema
-from .token import TokenSchema
+from .token import Token
 from .user import UserLoginSchema, UserOutSchema, UserRegisterSchema
 
 __all__ = [
@@ -65,7 +65,7 @@ __all__ = [
     "ScheduleBaseSchema",
     "ScheduleOutSchema",
     "ScheduleUpdateSchema",
-    "TokenSchema",
+    "Token",
     "UserLoginSchema",
     "UserOutSchema",
     "UserRegisterSchema",
