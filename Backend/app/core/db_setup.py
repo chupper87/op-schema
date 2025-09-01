@@ -1,13 +1,15 @@
-from base import Base
+from .settings import settings
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
-from settings import settings
+from sqlalchemy.orm import Session
 
 
 engine = create_engine(f"{settings.DB_URL}", echo=True)
 
 
 def create_db_and_tables():
+    from .base import Base
+
     try:
         Base.metadata.create_all(engine)
         print("Database tables created! 👽")
@@ -16,13 +18,12 @@ def create_db_and_tables():
 
 
 def get_db():
-    with Session(engine, expire_on_commit=False) as session:
-        try:
+    try:
+        with Session(engine, expire_on_commit=False) as session:
             yield session
-        except Exception as e:
-            print(f"Database error: {e}")
-            session.rollback
-            raise
+    except Exception as e:
+        print(f"❌ Error getting database session: {e}")
+        raise e
 
 
 if __name__ == "__main__":

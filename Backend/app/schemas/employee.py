@@ -22,10 +22,6 @@ class EmployeeBaseSchema(BaseModel):
     end_date: date
 
 
-class EmployeeCreateSchema(EmployeeBaseSchema):
-    pass
-
-
 class EmployeeUpdateSchema(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
