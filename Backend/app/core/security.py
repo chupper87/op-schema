@@ -1,8 +1,9 @@
+import base64
 from random import SystemRandom
 from typing import Annotated, List
 from uuid import UUID
 from datetime import datetime, UTC
-import base64
+
 from passlib.context import CryptContext
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -106,7 +107,7 @@ async def get_current_user(
     return user
 
 
-def get_current_superuser(
+async def get_current_superuser(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
     """
@@ -124,5 +125,19 @@ def get_current_superuser(
 
 
 class RoleChecker:
+    """
+    Dependency class for checking user roles.
+    Used to restrict access to routes based on user roles.
+    """
+
     def __init__(self, allowed_roles: List[RoleType]):
-        pass
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, current_user: User = Depends(get_current_user)):
+        user_role = current_user.employee.role
+
+        if user_role not in [role.value for role in self.allowed_roles]:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"You need permission as {', '.join([role.value for role in self.allowed_roles])}. Your role is {user_role}.",
+            )
