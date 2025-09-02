@@ -1,7 +1,6 @@
 import base64
 from random import SystemRandom
 from typing import Annotated, List
-from uuid import UUID
 from datetime import datetime, UTC
 
 from passlib.context import CryptContext
@@ -10,9 +9,9 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from models.auth import Token, User
-from enums import RoleType
-from db_setup import get_db
+from ..models.auth import Token, User
+from .enums import RoleType
+from .db_setup import get_db
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
@@ -45,7 +44,7 @@ def token_url_safe(nbytes=None):
     return base64.urlsafe_b64encode(tok).rstrip(b"=").decode("ascii")
 
 
-def create_database_token(user_id: UUID, db: Session):
+def create_database_token(user_id: int, db: Session):
     randomized_token = token_url_safe()
     new_token = Token(token=randomized_token, user_id=user_id)
     db.add(new_token)
@@ -134,6 +133,12 @@ class RoleChecker:
         self.allowed_roles = allowed_roles
 
     def __call__(self, current_user: User = Depends(get_current_user)):
+        if not current_user.employee:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No employee role assigned",
+            )
+        
         user_role = current_user.employee.role
 
         if user_role not in [role.value for role in self.allowed_roles]:
@@ -141,3 +146,4 @@ class RoleChecker:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"You need permission as {', '.join([role.value for role in self.allowed_roles])}. Your role is {user_role}.",
             )
+        

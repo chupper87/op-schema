@@ -1,4 +1,5 @@
 from ..core.base import Base
+from datetime import datetime, timezone, timedelta
 from typing import List, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -19,7 +20,10 @@ class Token(Base):
     created: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
-
+    expire_date: Mapped[datetime] = mapped_column(
+    DateTime, nullable=False, 
+    default=lambda: datetime.now(timezone.utc) + timedelta(hours=24)
+)
     # Relationships
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship(back_populates="tokens")
