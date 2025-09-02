@@ -6,14 +6,14 @@ from sqlalchemy.orm import Session
 engine = create_engine(f"{settings.DB_URL}", echo=True)
 
 
-def create_db_and_tables():
+def init_db():
     from .base import Base
 
     try:
         Base.metadata.create_all(engine)
         print("Database tables created! 👽")
     except Exception as e:
-        print(f"An error occurred initializing the database: {e}")
+        print(f"❌ An error occurred initializing the database: {e}")
 
 
 def get_db():
@@ -26,4 +26,4 @@ def get_db():
 
 
 if __name__ == "__main__":
-    create_db_and_tables()
+    init_db()
