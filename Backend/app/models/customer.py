@@ -1,5 +1,5 @@
-from core.base import Base
-from core.enums import CareLevel
+from ..core.base import Base
+from ..core.enums import CareLevel
 from sqlalchemy import ForeignKey, DateTime, Boolean, String, Integer, func, Float, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime

@@ -1,5 +1,5 @@
-from core.base import Base
-from core.enums import AbsenceType
+from ..core.base import Base
+from ..core.enums import AbsenceType
 from sqlalchemy import ForeignKey, DateTime, Date, String, Integer, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, date

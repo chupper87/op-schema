@@ -1,5 +1,5 @@
-from core.base import Base
-from core.enums import RoleType
+from ..core.base import Base
+from ..core.enums import RoleType
 from typing import List
 
 from sqlalchemy.orm import mapped_column, Mapped, relationship

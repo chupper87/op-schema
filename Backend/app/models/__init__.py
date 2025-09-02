@@ -1,4 +1,4 @@
-from core.base import Base
+from ..core.base import Base
 from .customer import Customer, CustomerMeasure
 from .measure import Measure, MeasureCareVisit
 from .schedule import (
@@ -8,7 +8,7 @@ from .schedule import (
     ScheduleEmployee,
     ScheduleArchive,
 )
-from .care_visit import CareVisit, EmployeeCareVisit
+from .care_visit import CareVisit
 from .absence import Absence
 from .employee import Employee
 from .auth import User, Token
@@ -29,6 +29,5 @@ __all__ = [
     "ScheduleEmployee",
     "ScheduleArchive",
     "CareVisit",
-    "EmployeeCareVisit",
     "Absence",
 ]

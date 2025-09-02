@@ -1,5 +1,5 @@
-from core.base import Base
-from core.enums import ShiftType
+from ..core.base import Base
+from ..core.enums import ShiftType
 
 from sqlalchemy import ForeignKey, DateTime, String, Integer, func, Text, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
