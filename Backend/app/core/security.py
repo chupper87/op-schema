@@ -87,7 +87,7 @@ async def get_current_token(
     oauth2_scheme automatically extracts the token from the authentication header
     Used when we simply want to return the token, instead of returning a user. E.g for logout
     """
-    token = verify_token_access(token_str=token, db=db)
+    token = verify_token_access(token_str=token, db=db) # type: ignore
     return token
 
 
@@ -101,8 +101,8 @@ async def get_current_user(
     oauth2_scheme automatically extracts the token from the authentication header
     Below, we get the current user based on that token
     """
-    token = verify_token_access(token_str=token, db=db)
-    user = token.user
+    token = verify_token_access(token_str=token, db=db) # type: ignore
+    user = token.user # type: ignore
     return user
 
 

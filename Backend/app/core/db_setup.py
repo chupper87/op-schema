@@ -1,6 +1,7 @@
 from .settings import settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+from .logger import logger
 
 import Backend.app.models.auth
 import Backend.app.models.absence
@@ -19,7 +20,7 @@ def init_db():
 
     try:
         Base.metadata.create_all(engine)
-        print("Database tables created! 👽")
+        logger.info("Database tables created! 👽")
     except Exception as e:
         print(f"❌ An error occurred initializing the database: {e}")
 
@@ -29,7 +30,7 @@ def get_db():
         with Session(engine, expire_on_commit=False) as session:
             yield session
     except Exception as e:
-        print(f"❌ Error getting database session: {e}")
+        logger.error(f"❌ Error getting database session: {e}")
         raise e
 
 
