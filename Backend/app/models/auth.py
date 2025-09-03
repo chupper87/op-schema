@@ -8,7 +8,6 @@ if TYPE_CHECKING:
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import DateTime, String, Text, Boolean, func, ForeignKey
 
-from datetime import datetime, timezone
 
 
 class Token(Base):

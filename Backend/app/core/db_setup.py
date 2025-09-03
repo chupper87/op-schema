@@ -9,7 +9,7 @@ import Backend.app.models.care_visit
 import Backend.app.models.customer
 import Backend.app.models.employee
 import Backend.app.models.measure
-import Backend.app.models.schedule
+import Backend.app.models.schedule  # noqa: F401
 
 
 engine = create_engine(f"{settings.DB_URL}", echo=settings.DEBUG)
