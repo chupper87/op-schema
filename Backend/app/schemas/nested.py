@@ -1,9 +1,9 @@
 from pydantic import ConfigDict
-from schedule import ScheduleOutSchema
-from carevisit import CareVisitOutSchema
-from employee import EmployeeOutSchema
-from customer import CustomerOutSchema
-from measure import MeasureOutSchema
+from .schedule import ScheduleOutSchema
+from .carevisit import CareVisitOutSchema
+from .employee import EmployeeOutSchema
+from .customer import CustomerOutSchema
+from .measure import MeasureOutSchema
 from typing import List
 
 

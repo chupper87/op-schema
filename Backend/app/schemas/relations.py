@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from core.enums import TimeFlexibility, TimeOfDay
+from ..core.enums import TimeFlexibility, TimeOfDay
 
 
 class CustomerMeasureBaseSchema(BaseModel):

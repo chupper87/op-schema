@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from core.enums import CareLevel, Gender
+from ..core.enums import CareLevel, Gender
 
 
 class CustomerBaseSchema(BaseModel):

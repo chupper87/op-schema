@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
-from core.enums import (
+from ..core.enums import (
     Gender,
     RoleType,
 )

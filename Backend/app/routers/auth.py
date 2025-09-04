@@ -1,4 +1,4 @@
-from typing import Any, Annotated
+from typing import Annotated
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, status, Depends, HTTPException
@@ -6,14 +6,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from ..core.db_setup import get_db
 from ..core.security import (
-    get_password_hash,
     RoleChecker,
     verify_password,
     create_database_token,
 )
 from ..core.enums import RoleType
 from ..schemas.user import UserRegisterSchema, UserOutSchema
-from ..schemas.token import Token
 from ..models import User
 
 

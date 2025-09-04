@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from datetime import datetime, date
-from core.enums import Gender, RoleType
+from ..core.enums import Gender, RoleType
 
 
 class EmployeeBaseSchema(BaseModel):

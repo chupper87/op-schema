@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from core.enums import ShiftType
+from ..core.enums import ShiftType
 
 
 class ScheduleBaseSchema(BaseModel):

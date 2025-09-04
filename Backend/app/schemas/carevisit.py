@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from core.enums import VisitStatus
+from ..core.enums import VisitStatus
 
 
 class CareVisitBaseSchema(BaseModel):
