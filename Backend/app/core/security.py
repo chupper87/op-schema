@@ -45,8 +45,8 @@ def token_url_safe(nbytes=None):
 
 
 def create_database_token(user_id: int, db: Session):
-    randomized_token = token_url_safe()
-    new_token = Token(token=randomized_token, user_id=user_id)
+    token = token_url_safe()
+    new_token = Token(token=token, user_id=user_id)
     db.add(new_token)
     db.commit()
     return new_token
@@ -87,7 +87,7 @@ async def get_current_token(
     oauth2_scheme automatically extracts the token from the authentication header
     Used when we simply want to return the token, instead of returning a user. E.g for logout
     """
-    token = verify_token_access(token_str=token, db=db) # type: ignore
+    token = verify_token_access(token_str=token, db=db)  # type: ignore
     return token
 
 
@@ -101,8 +101,8 @@ async def get_current_user(
     oauth2_scheme automatically extracts the token from the authentication header
     Below, we get the current user based on that token
     """
-    token = verify_token_access(token_str=token, db=db) # type: ignore
-    user = token.user # type: ignore
+    token = verify_token_access(token_str=token, db=db)  # type: ignore
+    user = token.user  # type: ignore
     return user
 
 
@@ -138,7 +138,7 @@ class RoleChecker:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="No employee role assigned",
             )
-        
+
         user_role = current_user.employee.role
 
         if user_role not in [role.value for role in self.allowed_roles]:
@@ -146,4 +146,3 @@ class RoleChecker:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"You need permission as {', '.join([role.value for role in self.allowed_roles])}. Your role is {user_role}.",
             )
-        
