@@ -9,7 +9,6 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import DateTime, String, Text, Boolean, func, ForeignKey
 
 
-
 class Token(Base):
     __tablename__ = "tokens"
 
@@ -20,9 +19,10 @@ class Token(Base):
         DateTime, nullable=False, default=lambda: datetime.now(timezone.utc)
     )
     expire_date: Mapped[datetime] = mapped_column(
-    DateTime, nullable=False, 
-    default=lambda: datetime.now(timezone.utc) + timedelta(hours=24)
-)
+        DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc) + timedelta(hours=24),
+    )
     # Relationships
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     user: Mapped["User"] = relationship(back_populates="tokens")

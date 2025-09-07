@@ -3,8 +3,7 @@ from .core.db_setup import init_db
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from .core.logger import logger
-from .routers import auth
-
+from .routers import auth, user
 
 
 @asynccontextmanager
@@ -17,11 +16,11 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Timepiece", lifespan=lifespan)
 
 app.include_router(auth.router)
+app.include_router(user.router)
 
 
 @app.get("/")
 async def root():
-    
     return {"message": "Timepiece", "status": "running"}
 
 

@@ -11,7 +11,6 @@ from ..core.security import (
     create_database_token,
 )
 from ..core.enums import RoleType
-from ..schemas.user import UserRegisterSchema, UserOutSchema
 from ..models import User
 
 
@@ -50,14 +49,3 @@ async def login(
 
     token_obj = create_database_token(user.id, db=db)
     return {"access_token": token_obj.token, "token_type": "bearer"}
-
-
-# User routes
-
-
-@router.post("/users/create", status_code=status.HTTP_201_CREATED)
-async def register_user(
-    user: UserRegisterSchema, db: Session = Depends(get_db)
-) -> UserOutSchema:  # type: ignore
-    pass
-    # hashed_password = get_password_hash(user.password)

@@ -3,7 +3,7 @@ from ..core.enums import (
     Gender,
     RoleType,
 )
-from datetime import datetime
+from datetime import datetime, date
 
 
 class UserRegisterSchema(BaseModel):
@@ -15,6 +15,7 @@ class UserRegisterSchema(BaseModel):
     phone: str = Field(..., min_length=5, max_length=15)
     gender: Gender
     role: RoleType
+    birth_date: date
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -23,11 +24,8 @@ class UserOutSchema(BaseModel):
     username: str
     email: EmailStr
     is_superuser: bool
-    is_active: bool
     created: datetime
     updated: datetime
-    gender: Gender
-    role: RoleType
     model_config = ConfigDict(from_attributes=True)
 
 

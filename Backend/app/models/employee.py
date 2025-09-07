@@ -23,7 +23,7 @@ class Employee(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     phone: Mapped[str] = mapped_column(String(15), unique=True, nullable=False)
     gender: Mapped[str] = mapped_column(String(10), nullable=True)
-    birth_date: Mapped[str] = mapped_column(String(8), nullable=True)
+    birth_date: Mapped[date] = mapped_column(Date, nullable=True)
 
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     role: Mapped[str] = mapped_column(Enum(RoleType), nullable=False)
