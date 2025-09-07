@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from ..models import User, Employee
 from ..core.db_setup import get_db
 from ..core.security import get_password_hash
+from ..core.logger import logger
 from ..schemas.user import UserRegisterSchema, UserOutSchema
 
 router = APIRouter(tags=["user"], prefix="/user")
@@ -12,6 +13,12 @@ router = APIRouter(tags=["user"], prefix="/user")
 async def register_user(
     user: UserRegisterSchema, db: Session = Depends(get_db)
 ) -> UserOutSchema:  # type: ignore
+    logger.info(f"Registering new user: {user.username}")
+
+    if db.query(User).filter(User.username == user.username).first():
+        logger.warning(f"Username already exists: {user.username}")
+        raise HTTPException(status_code=400, detail="Username already exists")
+
     hashed_password = get_password_hash(user.password)
 
     new_employee = Employee(
@@ -36,5 +43,7 @@ async def register_user(
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+
+    logger.success(f"User created: {new_user.username} (id={new_user.id})")
 
     return UserOutSchema.model_validate(new_user)
