@@ -1,0 +1,27 @@
+name: Python Code Quality
+on: [push]
+
+jobs:
+  code_quality:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Sync dependencies
+        run: uv sync --frozen
+      - name: Lock file check
+        run: uv lock --locked
+      - name: Ruff check
+        run: uvx ruff check .
+      - name: Ruff format check
+        run: uvx ruff format --check .
+      - name: Pyright
+        run: uv run pyright
+      - name: Pytest
+        run: uv run pytest
+      - name: Build package
+        run: uv build
