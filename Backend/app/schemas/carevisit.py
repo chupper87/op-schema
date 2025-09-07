@@ -17,7 +17,7 @@ class CareVisitUpdateSchema(BaseModel):
     duration: int | None = None
     notes: str | None = None
     schedule_id: int | None = None
-    model_config = ConfigDict(exclude_none=True)
+    model_config = ConfigDict(extra="ignore")
 
 
 class CareVisitOutSchema(CareVisitBaseSchema):

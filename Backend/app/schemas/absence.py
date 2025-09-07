@@ -18,7 +18,7 @@ class AbsenceUpdateSchema(BaseModel):
     absence_type: AbsenceType | None = None
     notes: str | None = None
     hours: int
-    model_config = ConfigDict(exclude_none=True)
+    model_config = ConfigDict(extra="ignore")
 
 
 class AbsenceOutSchema(AbsenceBaseSchema):
