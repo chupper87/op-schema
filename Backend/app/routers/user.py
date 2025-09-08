@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from typing import List
+from fastapi import APIRouter, Depends, status, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import delete
-from ..models import User, Employee, Token
+from sqlalchemy import select
+from ..models import User, Employee
 from ..core.enums import RoleType
 from ..core.db_setup import get_db
 from ..core.security import get_password_hash, RoleChecker
@@ -35,16 +36,14 @@ async def register_user(
         is_active=True,
         birth_date=user.birth_date,
     )
-    db.add(new_employee)
-    db.flush()
 
     new_user = User(
         username=user.username,
         email=user.email,
         hashed_password=hashed_password,
-        employee_id=new_employee.id,
+        employee_id=new_employee,
     )
-    db.add(new_user)
+    db.add_all([new_employee, new_user])
     db.commit()
     db.refresh(new_user)
 
@@ -70,19 +69,9 @@ async def delete_user(
         )
 
     try:
-        db.execute(delete(Token).where(Token.user_id == user_id))
-
-        # Delete user
-        employee_id = user.employee_id
         db.delete(user)
-
-        employee = db.get(Employee, employee_id)
-        if employee:
-            db.delete(employee)
-
         db.commit()
         logger.success(f"User {user.username} (id={user.id}) deleted successfully")
-
     except Exception as e:
         db.rollback()
         logger.exception(f"Failed to delete user {user_id}: {e}")
@@ -90,3 +79,80 @@ async def delete_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while deleting the user",
         )
+
+
+# Dactivate and reactivate user
+@router.put("/{user_id}/deactivate", status_code=status.HTTP_200_OK)
+async def deactivate_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User with ID {user_id} not found")
+
+    user.is_active = False
+    if user.employee:
+        user.employee.is_active = False
+
+    db.commit()
+    logger.info(f"User {user.username} (id={user.id}) deactivated")
+    return {"detail": f"User {user.username} deactivated"}
+
+
+@router.put("/{user_id}/activate", status_code=status.HTTP_200_OK)
+async def activate_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    user = db.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail=f"User with ID {user_id} not found")
+
+    user.is_active = True
+    if user.employee:
+        user.employee.is_active = True
+
+    db.commit()
+    logger.info(f"User {user.username} (id={user.id}) activated")
+    return {"detail": f"User {user.username} activated"}
+
+
+# List users
+@router.get("/", response_model=List[UserOutSchema], status_code=status.HTTP_200_OK)
+async def list_users(
+    skip: int = 0,
+    limit: int = 100,
+    include_inactive: bool = Query(False, description="Include inactive users"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+) -> List[UserOutSchema]:
+    query = select(User).offset(skip).limit(limit)
+
+    if not include_inactive:
+        query = query.where(User.is_active == True)  # noqa: E712
+
+    users = db.scalars(query).all()
+    logger.info(
+        f"Admin {current_user.username} listed {len(users)} users (include_inactive={include_inactive})"
+    )
+    return users  # type: ignore
+
+
+@router.get("/{user_id}", response_model=UserOutSchema, status_code=status.HTTP_200_OK)
+async def get_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+) -> UserOutSchema:
+    user = db.get(User, user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID {user_id} not found",
+        )
+
+    return UserOutSchema.model_validate(user)

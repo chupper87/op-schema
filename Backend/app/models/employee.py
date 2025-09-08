@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from .employee import Employee
     from .care_visit import CareVisit
     from .absence import Absence
+    from .auth import User
 
 
 class Employee(Base):
@@ -46,6 +47,10 @@ class Employee(Base):
     )
 
     # Relationships
+    user: Mapped["User"] = relationship(
+        "User", back_populates="employee", uselist=False
+    )
+
     schedules: Mapped[List["ScheduleEmployee"]] = relationship(
         back_populates="employee"
     )

@@ -24,7 +24,7 @@ class Token(Base):
         default=lambda: datetime.now(timezone.utc) + timedelta(hours=24),
     )
     # Relationships
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
     user: Mapped["User"] = relationship(back_populates="tokens")
 
 
@@ -35,6 +35,7 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(Text, nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     created: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
@@ -44,9 +45,18 @@ class User(Base):
     )
 
     # Relationships
-    employee_id: Mapped[int] = mapped_column(ForeignKey("employee.id"), nullable=False)
-    employee: Mapped["Employee"] = relationship("Employee")
-    tokens: Mapped[List["Token"]] = relationship(back_populates="user")
+    employee_id: Mapped[int] = mapped_column(
+        ForeignKey("employee.id", ondelete="CASCADE"), nullable=False
+    )
+    employee: Mapped["Employee"] = relationship(
+        "Employee",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        single_parent=True,
+    )
+    tokens: Mapped[List["Token"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
 
     @property
     def full_name(self) -> str:
