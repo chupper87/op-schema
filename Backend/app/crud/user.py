@@ -1,10 +1,14 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from core.logger import logger
-from models import User, Employee
-from schemas.user import UserInviteSchema, UserCompleteRegistrationSchema
-from core.security import token_url_safe, get_password_hash
+from ..core.logger import logger
+from ..models import User, Employee
+from ..schemas.user import (
+    UserInviteSchema,
+    UserCompleteRegistrationSchema,
+    UserLoginSchema,
+)
+from ..core.security import token_url_safe, get_password_hash, verify_password
 
 
 def invite_user(db: Session, user_data: UserInviteSchema):
@@ -65,3 +69,17 @@ def complete_registration(db: Session, user_data: UserCompleteRegistrationSchema
     except IntegrityError:
         db.rollback()
         raise
+
+
+def authenticate_user(db: Session, user_data: UserLoginSchema):
+    stmt = select(User).where(User.username == user_data.username)
+    user = db.execute(stmt).scalar_one_or_none()
+
+    if not user:
+        return None
+
+    verified_password = verify_password(user_data.password, user.hashed_password)
+
+    if verified_password:
+        return user
+    return None
