@@ -1,8 +1,9 @@
+from typing import List
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from ..core.logger import logger
-from ..models import User, Employee
+from ..models import User, Employee, Token
 from ..schemas.user import (
     UserInviteSchema,
     UserCompleteRegistrationSchema,
@@ -83,3 +84,36 @@ def authenticate_user(db: Session, user_data: UserLoginSchema):
     if verified_password:
         return user
     return None
+
+
+def logout_user(db: Session, token: Token) -> None:
+    db.delete(token)
+    db.commit()
+
+
+def delete_user(db, user_id):
+    pass
+
+
+def deactivate_user(db, user_id):
+    pass
+
+
+def activate_user(db, user_id):
+    pass
+
+
+def get_users(
+    db: Session, skip: int = 0, limit: int = 100, include_inactive: bool = False
+) -> List[User]:
+    query = select(User).offset(skip).limit(limit)
+
+    if not include_inactive:
+        query = query.where(User.is_active)
+
+    users = db.execute(query).scalars().all()
+    return list(users)
+
+
+def get_user_by_id(db, user_id, include_inactive):
+    pass
