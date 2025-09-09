@@ -1,6 +1,6 @@
 from ..core.base import Base
 from datetime import datetime, timezone, timedelta
-from typing import List, TYPE_CHECKING
+from typing import List, TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .employee import Employee
@@ -31,11 +31,20 @@ class Token(Base):
 class User(Base):
     __tablename__ = "users"
 
-    username: Mapped[str] = mapped_column(String(20), nullable=False, unique=True)
-    hashed_password: Mapped[str] = mapped_column(Text, nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    username: Mapped[Optional[str]] = mapped_column(
+        String(20), unique=True, nullable=True
+    )
+    hashed_password: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=False
+    )  # Aktiveras vid registrering
+    registration_token: Mapped[Optional[str]] = mapped_column(
+        String, unique=True, nullable=True
+    )
+    registration_completed: Mapped[bool] = mapped_column(Boolean, default=False)
 
     created: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
@@ -45,14 +54,8 @@ class User(Base):
     )
 
     # Relationships
-    employee_id: Mapped[int] = mapped_column(
-        ForeignKey("employee.id", ondelete="CASCADE"), nullable=False
-    )
     employee: Mapped["Employee"] = relationship(
-        "Employee",
-        back_populates="user",
-        cascade="all, delete-orphan",
-        single_parent=True,
+        "Employee", back_populates="user", uselist=False
     )
     tokens: Mapped[List["Token"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
@@ -60,16 +63,16 @@ class User(Base):
 
     @property
     def full_name(self) -> str:
-        return f"{self.employee.first_name} {self.employee.last_name}"
-
-    @property
-    def role(self) -> str:
-        return self.employee.role
+        if self.employee:
+            return f"{self.employee.first_name} {self.employee.last_name}"
+        return self.email
 
     @property
     def schedules(self):
         """Returns all schedules for the user via employee"""
-        return [se.schedule for se in self.employee.schedules]
+        if self.employee:
+            return [se.schedule for se in self.employee.schedules]
+        return []
 
     def __repr__(self) -> str:
-        return f"<User {self.username}>"
+        return f"<User {self.username or self.email}>"

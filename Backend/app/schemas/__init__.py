@@ -1,7 +1,7 @@
 from .absence import AbsenceBaseSchema, AbsenceOutSchema, AbsenceUpdateSchema
 from .carevisit import CareVisitBaseSchema, CareVisitOutSchema, CareVisitUpdateSchema
 from .customer import CustomerBaseSchema, CustomerOutSchema, CustomerUpdateSchema
-from .employee import EmployeeBaseSchema, EmployeeOutSchema, EmployeeUpdateSchema
+from .employee import EmployeeOutSchema, EmployeeUpdateSchema, EmployeeAdminCreateSchema
 from .measure import MeasureBaseSchema, MeasureOutSchema, MeasureUpdateSchema
 from .nested import ScheduleWithRelationsOutSchema, CareVisitWithRelationsOutSchema
 from .relations import (
@@ -26,7 +26,14 @@ from .schedule_archive import (
 )
 from .schedule import ScheduleBaseSchema, ScheduleOutSchema, ScheduleUpdateSchema
 from .token import Token, TokenData
-from .user import UserLoginSchema, UserOutSchema, UserRegisterSchema
+from .user import (
+    UserLoginSchema,
+    UserOutSchema,
+    UserRegisterSchema,
+    UserCompleteRegistrationSchema,
+    UserInviteSchema,
+    UserWithEmployeeOutSchema,
+)
 
 __all__ = [
     "AbsenceBaseSchema",
@@ -38,9 +45,9 @@ __all__ = [
     "CustomerBaseSchema",
     "CustomerOutSchema",
     "CustomerUpdateSchema",
-    "EmployeeBaseSchema",
     "EmployeeOutSchema",
     "EmployeeUpdateSchema",
+    "EmployeeAdminCreateSchema",
     "MeasureBaseSchema",
     "MeasureOutSchema",
     "MeasureUpdateSchema",
@@ -70,4 +77,7 @@ __all__ = [
     "UserLoginSchema",
     "UserOutSchema",
     "UserRegisterSchema",
+    "UserCompleteRegistrationSchema",
+    "UserInviteSchema",
+    "UserWithEmployeeOutSchema",
 ]

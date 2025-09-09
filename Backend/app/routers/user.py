@@ -29,7 +29,6 @@ async def register_user(
     new_employee = Employee(
         first_name=user.first_name,
         last_name=user.last_name,
-        email=user.email,
         phone=user.phone,
         role=user.role,
         gender=user.gender,
@@ -39,7 +38,6 @@ async def register_user(
 
     new_user = User(
         username=user.username,
-        email=user.email,
         hashed_password=hashed_password,
         employee_id=new_employee,
     )

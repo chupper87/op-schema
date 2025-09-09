@@ -1,6 +1,6 @@
 from ..core.base import Base
 from ..core.enums import RoleType
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import DateTime, String, Boolean, func, Enum, Integer, Date, ForeignKey
@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .schedule import ScheduleEmployee
-    from .employee import Employee
     from .care_visit import CareVisit
     from .absence import Absence
     from .auth import User
@@ -19,25 +18,24 @@ if TYPE_CHECKING:
 class Employee(Base):
     __tablename__ = "employee"
 
-    first_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    last_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
-    phone: Mapped[str] = mapped_column(String(15), unique=True, nullable=False)
-    gender: Mapped[str] = mapped_column(String(10), nullable=True)
-    birth_date: Mapped[date] = mapped_column(Date, nullable=True)
+    first_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    last_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    phone: Mapped[Optional[str]] = mapped_column(String(15), unique=True, nullable=True)
+    gender: Mapped[Optional[str]] = mapped_column(String(10), nullable=True)
+    birth_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
 
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    role: Mapped[str] = mapped_column(Enum(RoleType), nullable=False)
+    role: Mapped[Optional[str]] = mapped_column(Enum(RoleType), nullable=True)
 
-    employment_type: Mapped[str] = mapped_column(String(20), nullable=True)
-    employment_degree: Mapped[int] = mapped_column(Integer, nullable=True)
-    weekly_hours: Mapped[int] = mapped_column(Integer, nullable=True)
-    vacation_days: Mapped[int] = mapped_column(Integer, nullable=True)
-    is_summer_worker: Mapped[bool] = mapped_column(
+    employment_type: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    employment_degree: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    weekly_hours: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    vacation_days: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    is_summer_worker: Mapped[Optional[bool]] = mapped_column(
         Boolean, nullable=True, default=False
     )
-    start_date: Mapped[date] = mapped_column(Date, nullable=True)
-    end_date: Mapped[date] = mapped_column(Date, nullable=True)
+    start_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+    end_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
 
     created: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
@@ -47,9 +45,10 @@ class Employee(Base):
     )
 
     # Relationships
-    user: Mapped["User"] = relationship(
-        "User", back_populates="employee", uselist=False
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
+    user: Mapped["User"] = relationship("User", back_populates="employee")
 
     schedules: Mapped[List["ScheduleEmployee"]] = relationship(
         back_populates="employee"
@@ -60,15 +59,27 @@ class Employee(Base):
     absences: Mapped[List["Absence"]] = relationship(back_populates="employee")
 
     @property
-    def role_enum(self) -> RoleType:
-        return RoleType(self.role)
+    def email(self) -> str:
+        """Email kommer från User-tabellen"""
+        return self.user.email
+
+    @property
+    def role_enum(self) -> Optional[RoleType]:
+        if self.role:
+            return RoleType(self.role)
+        return None
 
     @role_enum.setter
     def role_enum(self, value: RoleType):
         self.role = value.value
 
     def __repr__(self) -> str:
-        return f"<Employee {self.first_name} {self.last_name}>"
+        name = (
+            f"{self.first_name} {self.last_name}"
+            if self.first_name and self.last_name
+            else self.user.email
+        )
+        return f"<Employee {name}>"
 
 
 class EmployeeCareVisit(Base):
@@ -82,7 +93,7 @@ class EmployeeCareVisit(Base):
     )
 
     is_primary: Mapped[bool] = mapped_column(Boolean, default=False)
-    notes: Mapped[str] = mapped_column(String(255), nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     created: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
