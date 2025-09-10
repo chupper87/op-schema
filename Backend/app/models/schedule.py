@@ -81,12 +81,9 @@ class ScheduleArchive(Base):
 class ScheduleEmployee(Base):
     __tablename__ = "schedule_employee"
 
-    schedule_id: Mapped[int] = mapped_column(
-        ForeignKey("schedules.id"), primary_key=True
-    )
-    employee_id: Mapped[int] = mapped_column(
-        ForeignKey("employee.id"), primary_key=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    schedule_id: Mapped[int] = mapped_column(ForeignKey("schedules.id"), nullable=False)
+    employee_id: Mapped[int] = mapped_column(ForeignKey("employee.id"), nullable=False)
 
     schedule: Mapped["Schedule"] = relationship(back_populates="employees")
     employee: Mapped["Employee"] = relationship(back_populates="schedules")
@@ -120,12 +117,9 @@ class ScheduleMeasure(Base):
 class ScheduleCustomer(Base):
     __tablename__ = "schedule_customer"
 
-    schedule_id: Mapped[int] = mapped_column(
-        ForeignKey("schedules.id"), primary_key=True
-    )
-    customer_id: Mapped[int] = mapped_column(
-        ForeignKey("customers.id"), primary_key=True
-    )
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    schedule_id: Mapped[int] = mapped_column(ForeignKey("schedules.id"), nullable=False)
+    customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"), nullable=False)
 
     schedule: Mapped["Schedule"] = relationship(back_populates="customers")
     customer: Mapped["Customer"] = relationship(back_populates="schedules")
