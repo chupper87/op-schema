@@ -116,4 +116,4 @@ def get_users(
 
 
 def get_user_by_id(db, user_id, include_inactive):
-    pass
+    print("test")
