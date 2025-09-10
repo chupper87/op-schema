@@ -40,10 +40,9 @@ class Measure(Base):
 class MeasureCareVisit(Base):
     __tablename__ = "measure_care_visit"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    measure_id: Mapped[int] = mapped_column(ForeignKey("measures.id"), nullable=False)
+    measure_id: Mapped[int] = mapped_column(ForeignKey("measures.id"), primary_key=True)
     care_visit_id: Mapped[int] = mapped_column(
-        ForeignKey("care_visits.id"), nullable=False
+        ForeignKey("care_visits.id"), primary_key=True
     )
 
     measure: Mapped["Measure"] = relationship(back_populates="care_visits")
