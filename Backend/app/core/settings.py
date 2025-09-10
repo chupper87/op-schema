@@ -4,7 +4,9 @@ from pydantic import SecretStr
 
 class Settings(BaseSettings):
     DB_URL: str
-    DATABASE_URL_TEST: str = "sqlite:///:memory:"
+    DATABASE_URL_TEST: str = (
+        "postgresql://postgres:postgres@localhost:5432/test_timepiece"
+    )
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
