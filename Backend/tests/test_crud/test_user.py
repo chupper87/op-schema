@@ -1,7 +1,22 @@
-from Backend.app.crud.user import authenticate_user
-from Backend.app.models import User, Employee
-from Backend.app.schemas.user import UserLoginSchema
+import pytest
+import datetime
+from Backend.app.crud.user import (
+    authenticate_user,
+    invite_user,
+    complete_registration,
+    logout_user,
+    delete_user,
+    deactivate_user,
+    activate_user,
+)
+from Backend.app.models import User, Employee, Token
+from Backend.app.schemas.user import (
+    UserLoginSchema,
+    UserInviteSchema,
+    UserCompleteRegistrationSchema,
+)
 from Backend.app.core.security import get_password_hash
+from Backend.app.core.enums import Gender, RoleType
 
 
 def test_authenticate_user(db):
@@ -24,3 +39,156 @@ def test_authenticate_user(db):
     assert result is not None
     assert result.username == "testuser"
     assert result.email == "test@example.com"
+
+
+def test_invite_user(db):
+    invite = UserInviteSchema(email="test@example.com", is_superuser=False)
+
+    result = invite_user(db, invite)
+
+    assert result is not None
+    assert result.email == "test@example.com"
+
+
+def test_complete_registration_success(db):
+    user = User(
+        email="test@example.com",
+        registration_token="abc123",
+        registration_completed=False,
+        is_active=False,
+    )
+    user.employee = Employee(first_name="", last_name="", phone="")
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    schema = UserCompleteRegistrationSchema(
+        registration_token="abc123",
+        username="newuser",
+        password="supersecret",
+        first_name="Anna",
+        last_name="Andersson",
+        phone="123456789",
+        gender=Gender.FEMALE,
+        role=RoleType.EMPLOYEE,
+        birth_date=datetime.date(1990, 1, 1),
+    )
+    result = complete_registration(db, schema)
+
+    assert result.username == "newuser"
+    assert result.is_active is True
+    assert result.registration_completed is True
+    assert result.registration_token is None
+    assert result.employee.first_name == "Anna"
+    assert result.employee.last_name == "Andersson"
+    assert result.employee.phone == "123456789"
+    assert result.employee.gender == "female"
+    assert result.employee.role == RoleType.EMPLOYEE
+    assert str(result.employee.birth_date) == "1990-01-01"
+    assert result.hashed_password != "secret"
+
+
+def test_complete_registration_invalid_token(db):
+    schema = UserCompleteRegistrationSchema(
+        registration_token="doesnotexist",
+        username="nouser",
+        password="irrelevant",
+        first_name="Test",
+        last_name="User",
+        phone="000000",
+        gender=Gender.MALE,
+        role=RoleType.EMPLOYEE,
+        birth_date=datetime.date(2000, 1, 1),
+    )
+
+    with pytest.raises(ValueError, match="Invalid registration token"):
+        complete_registration(db, schema)
+
+
+def test_logout_user(db):
+    user = User(
+        email="test@example.com",
+        hashed_password="hashedpw",
+        is_active=True,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    token = Token(token="abc123", user_id=user.id)
+    db.add(token)
+    db.commit()
+    db.refresh(token)
+
+    token_id = token.id
+
+    logout_user(db, token)
+
+    deleted = db.get(Token, token_id)
+    assert deleted is None
+
+
+def test_delete_user_success(db):
+    user = User(
+        email="test@example.com",
+        username="test@example.com",
+        hashed_password="hashedpw",
+        is_active=True,
+        is_superuser=False,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    result = delete_user(db, user.id)
+
+    assert result is True
+    assert db.get(User, user.id) is None
+
+
+def test_delete_user_not_found(db):
+    result = delete_user(db, user_id=999)
+
+    assert result is False
+
+
+def test_deactivate_user(db):
+    user = User(
+        email="test@example.com",
+        username="test@example.com",
+        hashed_password="hashedpw",
+        is_active=True,
+        is_superuser=False,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    result = deactivate_user(db, user.id)
+
+    assert result is True
+    db.refresh(user)
+    assert user.is_active is False
+
+
+def test_activate_user(db):
+    user = User(
+        email="test@example.com",
+        username="test@example.com",
+        hashed_password="hashedpw",
+        is_active=False,
+        is_superuser=False,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    result = activate_user(db, user.id)
+
+    assert result is True
+    db.refresh(user)
+    assert user.is_active is True
+
+
+def get_users(db):
+    pass

@@ -38,9 +38,7 @@ class User(Base):
         String(20), unique=True, nullable=True
     )
     hashed_password: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    is_active: Mapped[bool] = mapped_column(
-        Boolean, default=False
-    )  # Aktiveras vid registrering
+    is_active: Mapped[bool] = mapped_column(Boolean, default=False)
     registration_token: Mapped[Optional[str]] = mapped_column(
         String, unique=True, nullable=True
     )
