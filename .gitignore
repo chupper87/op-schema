@@ -1,23 +1,30 @@
-.venv
+.venv/
 venv/
-*.pyc
+
+# Bytecode / cache
 __pycache__/
-.env
+*.py[cod]
+*$py.class
+
+# Pytest coverage
+.pytest_cache/
+.coverage.*
+htmlcov/
+htmlcov/
+
+
+.ruff_cache/
+.mypy_cache/
+
+
 *.log
 logs/
+
+
+.vscode/
+.idea/
+
 
 .env
 .env.local
 .env.*.local
-
-.cursorrules
-.cursorignore
-.cursor
-
-
-# Python cache
-__pycache__/
-*.py[cod]
-*$py.class
-.ruff_cache
-.pytest_cache
