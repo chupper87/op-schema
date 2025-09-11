@@ -91,16 +91,55 @@ def logout_user(db: Session, token: Token) -> None:
     db.commit()
 
 
-def delete_user(db, user_id):
-    pass
+def delete_user(db: Session, user_id: int) -> bool:
+    stmt = select(User).where(User.id == user_id)
+    user = db.execute(stmt).scalar_one_or_none()
+
+    if not user:
+        return False
+
+    db.delete(user)
+    db.commit()
+    return True
 
 
-def deactivate_user(db, user_id):
-    pass
+def deactivate_user(db: Session, user_id: int) -> bool:
+    stmt = select(User).where(User.id == user_id)
+
+    user = db.execute(stmt).scalar_one_or_none()
+
+    if not user:
+        return False
+
+    if not user.is_active:
+        return False
+
+    user.is_active = False
+    if user.employee:
+        user.employee.is_active = False
+
+    db.commit()
+    return True
 
 
-def activate_user(db, user_id):
-    pass
+def activate_user(db: Session, user_id: int) -> bool:
+    stmt = select(User).where(User.id == user_id)
+
+    user = db.execute(stmt).scalar_one_or_none()
+
+    if not user:
+        return False
+
+    if user.is_active:
+        return False
+
+    user.is_active = True
+    if user.employee:
+        user.employee.is_active = True
+
+    db.commit()
+
+    return True
 
 
 def get_users(
@@ -115,5 +154,13 @@ def get_users(
     return list(users)
 
 
-def get_user_by_id(db, user_id, include_inactive):
-    print("test")
+def get_user_by_id(
+    db: Session, user_id: int, include_inactive: bool = False
+) -> User | None:
+    stmt = select(User).where(User.id == user_id)
+
+    if not include_inactive:
+        stmt = stmt.where(User.is_active)
+
+    result = db.execute(stmt).scalars().first()
+    return result
