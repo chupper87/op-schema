@@ -7,13 +7,20 @@ from ..core.enums import RoleType
 from ..core.db_setup import get_db
 from ..core.security import RoleChecker
 from ..core.logger import logger
-from ..schemas.user import UserOutSchema
+from ..schemas.user import (
+    UserOutSchema,
+    UserWithEmployeeOutSchema,
+    ChangePasswordSchema,
+)
+from ..schemas.employee import EmployeeUpdateSchema
 from ..crud.user import (
     delete_user,
     deactivate_user,
     activate_user,
     get_users,
     get_user_by_id,
+    update_user,
+    change_password,
 )
 
 router = APIRouter(tags=["users"], prefix="/users")
@@ -119,3 +126,41 @@ async def activate_user_endpoint(
 
     logger.info(f"User {user_id} activated by admin {current_user.username}")
     return {"detail": f"User {user_id} activated successfully"}
+
+
+@router.put(
+    "/{user_id}/update",
+    response_model=UserWithEmployeeOutSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def update_user_endpoint(
+    user_id: int,
+    update_data: EmployeeUpdateSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    user = update_user(db, user_id=user_id, update_data=update_data)
+    logger.info(f"Updated employee: {user.username}")
+    return UserWithEmployeeOutSchema.from_user(user)
+
+
+@router.put(
+    "/{user_id}/change-password",
+    response_model=ChangePasswordSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def change_password_endpoint(
+    db: Session, user_id: int, old_password: str, new_password: str
+):
+    success = change_password(
+        db, user_id=user_id, old_password=old_password, new_password=new_password
+    )
+
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid old password or user not found",
+        )
+    logger.info("Password has been changed for user {user_id}")
+
+    return {"detail": "Password updated successfully"}

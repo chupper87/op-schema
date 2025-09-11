@@ -85,3 +85,22 @@ class UserWithEmployeeOutSchema(UserOutSchema):
 class UserLoginSchema(BaseModel):
     username: str
     password: str
+
+
+class ChangePasswordSchema(BaseModel):
+    old_password: str
+    new_password: str = Field(..., min_length=8)
+
+
+class RequestPasswordResetSchema(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordSchema(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=8)
+
+
+class ChangeRoleSchema(BaseModel):
+    is_superuser: Optional[bool] = None
+    role: Optional[RoleType] = None

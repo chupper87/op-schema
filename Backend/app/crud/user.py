@@ -9,6 +9,7 @@ from ..schemas.user import (
     UserCompleteRegistrationSchema,
     UserLoginSchema,
 )
+from ..schemas.employee import EmployeeUpdateSchema
 from ..core.security import (
     token_url_safe,
     get_password_hash,
@@ -117,6 +118,27 @@ def delete_user(db: Session, user_id: int) -> bool:
     return True
 
 
+def update_user(db: Session, user_id: int, update_data: EmployeeUpdateSchema):
+    stmt = select(User).where(User.id == user_id)
+
+    user = db.execute(stmt).scalar_one_or_none()
+
+    if not user:
+        raise ValueError("User does not exist")
+
+    employee = user.employee
+
+    if not employee:
+        raise ValueError("Employee record not found")
+
+    for field, value in update_data.model_dump(exclude_unset=True).items():
+        setattr(employee, field, value)
+
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 def deactivate_user(db: Session, user_id: int) -> bool:
     stmt = select(User).where(User.id == user_id)
 
@@ -178,3 +200,23 @@ def get_user_by_id(
 
     result = db.execute(stmt).scalars().first()
     return result
+
+
+def change_password(
+    db: Session, user_id: int, old_password: str, new_password: str
+) -> bool:
+    stmt = select(User).where(User.id == user_id)
+
+    user = db.execute(stmt).scalar_one_or_none()
+
+    if not user:
+        return False
+
+    if not verify_password(old_password, user.hashed_password):
+        return False
+
+    user.hashed_password = get_password_hash(new_password)
+
+    db.commit()
+
+    return True
