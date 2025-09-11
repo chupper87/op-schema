@@ -9,7 +9,12 @@ from ..schemas.user import (
     UserCompleteRegistrationSchema,
     UserLoginSchema,
 )
-from ..core.security import token_url_safe, get_password_hash, verify_password
+from ..core.security import (
+    token_url_safe,
+    get_password_hash,
+    verify_password,
+    create_database_token,
+)
 
 
 def invite_user(db: Session, user_data: UserInviteSchema):
@@ -84,6 +89,15 @@ def authenticate_user(db: Session, user_data: UserLoginSchema):
     if verified_password:
         return user
     return None
+
+
+def login_user(db: Session, user_data: UserLoginSchema) -> Token | None:
+    user = authenticate_user(db, user_data)
+    if not user:
+        return None
+
+    token = create_database_token(user.id, db)
+    return token
 
 
 def logout_user(db: Session, token: Token) -> None:

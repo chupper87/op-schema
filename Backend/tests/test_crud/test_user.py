@@ -10,6 +10,7 @@ from Backend.app.crud.user import (
     activate_user,
     get_users,
     get_user_by_id,
+    login_user,
 )
 from Backend.app.models import User, Employee, Token
 from Backend.app.schemas.user import (
@@ -128,6 +129,46 @@ def test_logout_user(db):
 
     deleted = db.get(Token, token_id)
     assert deleted is None
+
+
+def test_login_user_success(db):
+    raw_password = "supersecret"
+    user = User(
+        email="test@example.com",
+        username="testuser",
+        hashed_password=get_password_hash(raw_password),
+        is_active=True,
+        is_superuser=False,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    login_data = UserLoginSchema(username="testuser", password=raw_password)
+
+    token = login_user(db, login_data)
+
+    assert token is not None
+    assert isinstance(token, Token)
+    assert token.user_id == user.id
+
+
+def test_login_user_invalid_credentials(db):
+    user = User(
+        email="wrong@example.com",
+        username="wronguser",
+        hashed_password=get_password_hash("rightpassword"),
+        is_active=True,
+        is_superuser=False,
+    )
+    db.add(user)
+    db.commit()
+
+    login_data = UserLoginSchema(username="wronguser", password="wrongpassword")
+
+    token = login_user(db, login_data)
+
+    assert token is None
 
 
 def test_delete_user_success(db):
