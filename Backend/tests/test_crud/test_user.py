@@ -8,6 +8,8 @@ from Backend.app.crud.user import (
     delete_user,
     deactivate_user,
     activate_user,
+    get_users,
+    get_user_by_id,
 )
 from Backend.app.models import User, Employee, Token
 from Backend.app.schemas.user import (
@@ -190,5 +192,79 @@ def test_activate_user(db):
     assert user.is_active is True
 
 
-def get_users(db):
-    pass
+def test_get_users_include_inactive(db):
+    active_user = User(
+        email="active@example.com",
+        username="active",
+        hashed_password="hashedpw",
+        is_active=True,
+        is_superuser=False,
+    )
+    inactive_user = User(
+        email="inactive@example.com",
+        username="inactive",
+        hashed_password="hashedpw",
+        is_active=False,
+        is_superuser=False,
+    )
+    db.add_all([active_user, inactive_user])
+    db.commit()
+
+    users = get_users(db, include_inactive=True)
+
+    emails = [u.email for u in users]
+    assert "active@example.com" in emails
+    assert "inactive@example.com" in emails
+
+
+def test_get_user_by_id_active(db):
+    user = User(
+        email="active@example.com",
+        username="active",
+        hashed_password="hashedpw",
+        is_active=True,
+        is_superuser=False,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    result = get_user_by_id(db, user.id, include_inactive=False)
+
+    assert result is not None
+    assert result.email == "active@example.com"
+
+
+def test_get_user_by_id_inactive_filtered_out(db):
+    user = User(
+        email="inactive@example.com",
+        username="inactive",
+        hashed_password="hashedpw",
+        is_active=False,
+        is_superuser=False,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    result = get_user_by_id(db, user.id, include_inactive=False)
+
+    assert result is None
+
+
+def test_get_user_by_id_inactive_included(db):
+    user = User(
+        email="inactive@example.com",
+        username="inactive",
+        hashed_password="hashedpw",
+        is_active=False,
+        is_superuser=False,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    result = get_user_by_id(db, user.id, include_inactive=True)
+
+    assert result is not None
+    assert result.email == "inactive@example.com"
