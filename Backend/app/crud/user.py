@@ -1,10 +1,11 @@
 import secrets
 from typing import List
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from pydantic import EmailStr
 from ..core.logger import logger
+from ..core.enums import RoleType
 from ..models import User, Employee, Token
 from ..schemas.user import (
     UserInviteSchema,
@@ -234,3 +235,63 @@ def request_password_reset(db: Session, email: EmailStr) -> str | None:
     user.reset_token = token
     db.commit()
     return token
+
+
+def reset_password(db: Session, token: str, new_password: str) -> bool:
+    stmt = select(User).where(User.reset_token == token)
+    user = db.execute(stmt).scalar_one_or_none()
+
+    if not user:
+        return False
+
+    try:
+        user.hashed_password = get_password_hash(new_password)
+        user.reset_token = None
+        db.commit()
+        return True
+    except Exception:
+        db.rollback()
+        raise
+
+
+def change_user_role(db: Session, user_id: int, new_role: RoleType) -> bool:
+    stmt = select(User).where(User.id == user_id)
+    user = db.execute(stmt).scalar_one_or_none()
+
+    if not user or not user.employee:
+        return False
+
+    try:
+        user.employee.role = new_role
+        db.commit()
+        return True
+    except Exception:
+        db.rollback()
+        raise
+
+
+def search_users(
+    db: Session,
+    query: str | None = None,
+    role: RoleType | None = None,
+    is_active: bool | None = None,
+) -> list[User]:
+    stmt = select(User)
+
+    if query:
+        stmt = stmt.join(User.employee).where(
+            or_(
+                User.email.ilike(f"%{query}%"),
+                User.username.ilike(f"%{query}%"),
+                User.employee.first_name.ilike(f"%{query}%"),
+                User.employee.last_name.ilike(f"%{query}%"),
+            )
+        )
+
+    if role:
+        stmt = stmt.join(User.employee).where(User.employee.role == role)
+
+    if is_active is not None:
+        stmt = stmt.where(User.is_active == is_active)
+
+    return list(db.execute(stmt).scalars().all())

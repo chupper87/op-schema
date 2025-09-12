@@ -11,6 +11,9 @@ from ..schemas.user import (
     UserOutSchema,
     UserWithEmployeeOutSchema,
     ChangePasswordSchema,
+    RequestPasswordResetSchema,
+    ResetPasswordSchema,
+    ChangeRoleSchema,
 )
 from ..schemas.employee import EmployeeUpdateSchema
 from ..crud.user import (
@@ -21,6 +24,10 @@ from ..crud.user import (
     get_user_by_id,
     update_user,
     change_password,
+    request_password_reset,
+    reset_password,
+    change_user_role,
+    search_users,
 )
 
 router = APIRouter(tags=["users"], prefix="/users")
@@ -80,52 +87,34 @@ async def delete_user_endpoint(
     logger.info(f"User {user_id} deleted successfully by admin {current_user.username}")
 
 
-@router.put("/{user_id}/deactivate", status_code=status.HTTP_200_OK)
+@router.put("/{user_id}/deactivate", status_code=status.HTTP_204_NO_CONTENT)
 async def deactivate_user_endpoint(
     user_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
-    result = deactivate_user(db, user_id=user_id)
-
-    if result is None:
+    success = deactivate_user(db, user_id=user_id)
+    if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID {user_id} not found",
+            detail="User not found or already inactive",
         )
-
-    if not result:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"User {user_id} is already inactive",
-        )
-
-    logger.info(f"User {user_id} deactivated by admin {current_user.username}")
-    return {"detail": f"User {user_id} deactivated successfully"}
+    logger.info(f"User {user_id} deactivated")
 
 
-@router.put("/{user_id}/activate", status_code=status.HTTP_200_OK)
+@router.put("/{user_id}/activate", status_code=status.HTTP_204_NO_CONTENT)
 async def activate_user_endpoint(
     user_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
-    result = activate_user(db, user_id=user_id)
-
-    if result is None:
+    success = activate_user(db, user_id=user_id)
+    if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID {user_id} not found",
+            detail="User not found or already active",
         )
-
-    if not result:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"User {user_id} is already active",
-        )
-
-    logger.info(f"User {user_id} activated by admin {current_user.username}")
-    return {"detail": f"User {user_id} activated successfully"}
+    logger.info(f"User {user_id} activated")
 
 
 @router.put(
@@ -137,7 +126,7 @@ async def update_user_endpoint(
     user_id: int,
     update_data: EmployeeUpdateSchema,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    _current_user: User = Depends(require_admin),
 ):
     user = update_user(db, user_id=user_id, update_data=update_data)
     logger.info(f"Updated employee: {user.username}")
@@ -149,7 +138,7 @@ async def change_password_endpoint(
     user_id: int,
     data: ChangePasswordSchema,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    _current_user: User = Depends(require_admin),
 ):
     success = change_password(
         db,
@@ -166,3 +155,79 @@ async def change_password_endpoint(
 
     logger.info(f"Password changed for user {user_id}")
     return {"detail": "Password updated successfully"}
+
+
+@router.put("/request-reset-password", status_code=status.HTTP_200_OK)
+async def request_password_reset_endpoint(
+    data: RequestPasswordResetSchema,
+    db: Session = Depends(get_db),
+):
+    success = request_password_reset(db, email=data.email)
+
+    if not success:
+        logger.info(f"No user with email {data.email} found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User email not found",
+        )
+
+    logger.info(f"Password reset requested for {data.email}")
+
+    return {"detail": "Password reset requested. Please check your email."}
+
+
+@router.put("/reset-password", status_code=status.HTTP_200_OK)
+async def reset_password_endpoint(
+    data: ResetPasswordSchema,
+    db: Session = Depends(get_db),
+):
+    success = reset_password(db, token=data.token, new_password=data.new_password)
+
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token",
+        )
+
+    logger.info(f"Password reset for user with token {data.token}")
+    return {"detail": "Password has been reset successfully"}
+
+
+@router.put("/{user_id}/change_user_role", status_code=status.HTTP_204_NO_CONTENT)
+async def change_user_role_endpoints(
+    user_id: int,
+    data: ChangeRoleSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    success = change_user_role(db, user_id=user_id, new_role=data.role)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User or employee not found",
+        )
+    logger.info(f"Role of user {user_id} changed to {data.role}")
+
+
+@router.get(
+    "/search",
+    response_model=List[UserWithEmployeeOutSchema],
+    status_code=status.HTTP_200_OK,
+)
+async def search_users_endpoint(
+    q: str | None = None,
+    role: RoleType | None = None,
+    is_active: bool | None = None,
+    db: Session = Depends(get_db),
+):
+    users = search_users(db, query=q, role=role, is_active=is_active)
+
+    if not users:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No users found",
+        )
+
+    logger.info(f"Found {len(users)} user(s) for query='{q}'")
+
+    return [UserWithEmployeeOutSchema.from_user(user) for user in users]
