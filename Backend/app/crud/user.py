@@ -1,7 +1,9 @@
+import secrets
 from typing import List
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from pydantic import EmailStr
 from ..core.logger import logger
 from ..models import User, Employee, Token
 from ..schemas.user import (
@@ -220,3 +222,15 @@ def change_password(
     db.commit()
 
     return True
+
+
+def request_password_reset(db: Session, email: EmailStr) -> str | None:
+    stmt = select(User).where(User.email == email)
+    user = db.execute(stmt).scalar_one_or_none()
+    if not user:
+        return None
+
+    token = secrets.token_urlsafe(32)
+    user.reset_token = token
+    db.commit()
+    return token

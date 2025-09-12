@@ -144,16 +144,18 @@ async def update_user_endpoint(
     return UserWithEmployeeOutSchema.from_user(user)
 
 
-@router.put(
-    "/{user_id}/change-password",
-    response_model=ChangePasswordSchema,
-    status_code=status.HTTP_200_OK,
-)
+@router.put("/{user_id}/change-password", status_code=status.HTTP_200_OK)
 async def change_password_endpoint(
-    db: Session, user_id: int, old_password: str, new_password: str
+    user_id: int,
+    data: ChangePasswordSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
 ):
     success = change_password(
-        db, user_id=user_id, old_password=old_password, new_password=new_password
+        db,
+        user_id=user_id,
+        old_password=data.old_password,
+        new_password=data.new_password,
     )
 
     if not success:
@@ -161,6 +163,6 @@ async def change_password_endpoint(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid old password or user not found",
         )
-    logger.info("Password has been changed for user {user_id}")
 
+    logger.info(f"Password changed for user {user_id}")
     return {"detail": "Password updated successfully"}
