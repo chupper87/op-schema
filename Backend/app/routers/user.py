@@ -35,28 +35,29 @@ router = APIRouter(tags=["users"], prefix="/users")
 require_admin = RoleChecker([RoleType.ADMIN])
 
 
-@router.get("/", response_model=List[UserOutSchema], status_code=status.HTTP_200_OK)
+@router.get("/", response_model=list[UserOutSchema], status_code=status.HTTP_200_OK)
 async def list_users(
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0, description="Number of records to skip for pagination"),
+    limit: int = Query(100, le=1000, description="Max number of records to return"),
     include_inactive: bool = Query(False, description="Include inactive users"),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
-) -> List[UserOutSchema]:
+):
     users = get_users(db, skip=skip, limit=limit, include_inactive=include_inactive)
     logger.info(
-        f"Admin {current_user.username} listed {len(users)} users (include_inactive={include_inactive})"
+        f"Admin {current_user.username} listed {len(users)} users "
+        f"(skip={skip}, limit={limit}, include_inactive={include_inactive})"
     )
-    return [UserOutSchema.model_validate(user) for user in users]
+    return users
 
 
 @router.get("/{user_id}", response_model=UserOutSchema, status_code=status.HTTP_200_OK)
 async def get_user(
     user_id: int,
+    include_inactive: bool = Query(False, description="Include inactive users"),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
-    include_inactive: bool = Query(False, description="Include inactive users"),
-) -> UserOutSchema:
+):
     user = get_user_by_id(db, user_id=user_id, include_inactive=include_inactive)
 
     if not user:
@@ -65,8 +66,11 @@ async def get_user(
             detail=f"User with ID {user_id} not found",
         )
 
-    logger.info(f"Admin {current_user.username} retrieved user {user.username}")
-    return UserOutSchema.model_validate(user)
+    logger.info(
+        f"Admin {current_user.username} retrieved user {user.username} "
+        f"(include_inactive={include_inactive})"
+    )
+    return user
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
