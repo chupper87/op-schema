@@ -35,12 +35,19 @@ def create_customer(db: Session, data: CustomerBaseSchema) -> Customer:
 
 
 def get_customers(
-    db: Session, skip: int = 0, limit: int = 100, include_inactive: bool = False
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    include_inactive: bool = False,
+    key_number: str | None = None,
 ) -> list[Customer]:
     query = select(Customer).order_by(Customer.created).offset(skip).limit(limit)
 
     if not include_inactive:
         query = query.where(Customer.is_active)
+
+    if key_number:
+        query = query.where(Customer.key_number == key_number)
 
     return list(db.execute(query).scalars().all())
 
@@ -55,3 +62,47 @@ def get_customer_by_id(
 
     customer = db.execute(stmt).scalar_one_or_none()
     return customer
+
+
+def remove_customer(db: Session, customer_id: int) -> bool:
+    stmt = select(Customer).where(Customer.id == customer_id)
+    customer = db.execute(stmt).scalar_one_or_none()
+
+    if not customer:
+        return False
+
+    db.delete(customer)
+    db.commit()
+    return True
+
+
+def deactivate_customer(db: Session, customer_id: int) -> bool:
+    stmt = select(Customer).where(Customer.id == customer_id)
+
+    customer = db.execute(stmt).scalar_one_or_none()
+
+    if not customer:
+        return False
+
+    if not customer.is_active:
+        return False
+
+    customer.is_active = False
+    db.commit()
+    return True
+
+
+def activate_customer(db: Session, customer_id: int) -> bool:
+    stmt = select(Customer).where(Customer.id == customer_id)
+
+    customer = db.execute(stmt).scalar_one_or_none()
+
+    if not customer:
+        return False
+
+    if customer.is_active:
+        return False
+
+    customer.is_active = True
+    db.commit()
+    return True
