@@ -5,21 +5,15 @@ from Backend.app.main import app
 from Backend.app.models import User, Employee
 from Backend.app.core.enums import RoleType
 from Backend.app.core.db_setup import get_db
-from Backend.app.routers.user import require_admin
+from Backend.app.routers import user as user_router
 from Backend.app.core.security import get_password_hash
 
 
-client = TestClient(app)
-
-
-@pytest.fixture(autouse=True)
 def override_get_db(db):
     def _get_db_override():
         yield db
 
-    app.dependency_overrides[get_db] = _get_db_override
-    yield
-    app.dependency_overrides.pop(get_db, None)
+    return _get_db_override
 
 
 def override_require_admin():
@@ -34,7 +28,13 @@ def override_require_admin():
     return dummy_user
 
 
-app.dependency_overrides[require_admin] = override_require_admin
+@pytest.fixture
+def client(db):
+    app.dependency_overrides[get_db] = override_get_db(db)
+    app.dependency_overrides[user_router.require_admin] = override_require_admin
+    with TestClient(app) as c:
+        yield c
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture
@@ -54,7 +54,7 @@ def test_user(db):
     db.commit()
 
 
-def test_change_password_success(test_user: User):
+def test_change_password_success(test_user: User, client):
     response = client.put(
         f"/users/{test_user.id}/change-password",
         json={"old_password": "oldpassword", "new_password": "newsecurepw"},
@@ -64,7 +64,7 @@ def test_change_password_success(test_user: User):
     assert response.json() == {"detail": "Password updated successfully"}
 
 
-def test_change_password_wrong_old_password(test_user: User):
+def test_change_password_wrong_old_password(test_user: User, client):
     response = client.put(
         f"/users/{test_user.id}/change-password",
         json={"old_password": "wrongpassword", "new_password": "newsecurepw"},

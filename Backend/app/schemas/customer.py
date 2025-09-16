@@ -19,8 +19,8 @@ class CustomerUpdateSchema(BaseModel):
     last_name: str | None = None
     key_number: str | None = None
     address: str | None = None
-    care_level: str | None = None
-    gender: Gender
+    care_level: CareLevel | None = None
+    gender: Gender | None = None
     approved_hours: float | None = None
     is_active: bool | None = None
 

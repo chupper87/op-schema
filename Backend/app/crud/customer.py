@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from ..schemas.customer import CustomerBaseSchema
+from ..schemas.customer import CustomerBaseSchema, CustomerUpdateSchema
 from ..models.customer import Customer
 
 
@@ -106,3 +106,24 @@ def activate_customer(db: Session, customer_id: int) -> bool:
     customer.is_active = True
     db.commit()
     return True
+
+
+def update_customer(
+    db: Session, customer_id: int, data: CustomerUpdateSchema
+) -> Optional[Customer]:
+    stmt = select(Customer).where(Customer.id == customer_id)
+    customer = db.execute(stmt).scalar_one_or_none()
+
+    if not customer:
+        return None
+
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(customer, field, value)
+
+    try:
+        db.commit()
+        db.refresh(customer)
+        return customer
+    except IntegrityError:
+        db.rollback()
+        raise

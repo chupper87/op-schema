@@ -3,7 +3,11 @@ from sqlalchemy.orm import Session
 from ..core.db_setup import get_db
 from ..core.security import RoleChecker, RoleType
 from ..core.logger import logger
-from ..schemas.customer import CustomerOutSchema, CustomerBaseSchema
+from ..schemas.customer import (
+    CustomerOutSchema,
+    CustomerBaseSchema,
+    CustomerUpdateSchema,
+)
 from ..models.auth import User
 from ..crud.customer import (
     activate_customer,
@@ -12,6 +16,7 @@ from ..crud.customer import (
     remove_customer,
     get_customers,
     get_customer_by_id,
+    update_customer,
 )
 
 
@@ -144,3 +149,25 @@ async def activate_customer_endpoint(
     logger.info(
         f"Customer {customer_id} activated successfully by admin {current_user.username}"
     )
+
+
+@router.patch(
+    "/{customer_id}",
+    response_model=CustomerOutSchema,
+    status_code=status.HTTP_200_OK,
+)
+async def update_customer_endpoint(
+    customer_id: int,
+    data: CustomerUpdateSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    customer = update_customer(db, customer_id=customer_id, data=data)
+
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Customer with ID {customer_id} not found",
+        )
+
+    return customer
