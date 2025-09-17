@@ -139,22 +139,20 @@ def search_customers(
     stmt = select(Customer)
 
     if query:
-        # Build search conditions
-        search_conditions = [
+        # Build search conditions for text fields
+        text_conditions = [
             Customer.first_name.ilike(f"%{query}%"),
             Customer.last_name.ilike(f"%{query}%"),
             Customer.address.ilike(f"%{query}%"),
         ]
 
-        # Try to parse query as integer for exact key_number match
         try:
             key_number_query = int(query)
-            search_conditions.append(Customer.key_number == key_number_query)
+            stmt = stmt.where(
+                or_(*text_conditions, Customer.key_number == key_number_query)
+            )
         except ValueError:
-            # Query is not a number, skip key_number search
-            pass
-
-        stmt = stmt.where(or_(*search_conditions))
+            stmt = stmt.where(or_(*text_conditions))
 
     if care_level:
         stmt = stmt.where(Customer.care_level == care_level)
