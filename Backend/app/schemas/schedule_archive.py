@@ -1,12 +1,13 @@
 from pydantic import BaseModel, ConfigDict
-from datetime import datetime
+from datetime import datetime, date
 from ..core.enums import ShiftType
 
 
 class ScheduleArchiveBaseSchema(BaseModel):
     original_schedule_id: int
-    original_date: datetime
-    shift: ShiftType
+    original_date: date
+    shift_type: ShiftType | None = None
+    custom_shift: str | None = None
     notes: str | None = None
 
 
@@ -18,10 +19,10 @@ class ScheduleArchiveCreateSchema(ScheduleArchiveBaseSchema):
     visit_count: int = 0
     completed_visit_count: int = 0
     canceled_visit_count: int = 0
-    employees_data: str | None = None  # JSON-data
-    customers_data: str | None = None  # JSON-data
-    measures_data: str | None = None  # JSON-data
-    visits_data: str | None = None  # JSON-data
+    employees_data: str | None = None
+    customers_data: str | None = None
+    measures_data: str | None = None
+    visits_data: str | None = None
 
 
 class ScheduleArchiveOutSchema(ScheduleArchiveBaseSchema):
@@ -34,8 +35,8 @@ class ScheduleArchiveOutSchema(ScheduleArchiveBaseSchema):
     visit_count: int
     completed_visit_count: int
     canceled_visit_count: int
-    employees_data: str | None = None  # JSON-data
-    customers_data: str | None = None  # JSON-data
-    measures_data: str | None = None  # JSON-data
-    visits_data: str | None = None  # JSON-data
+    employees_data: str | None = None
+    customers_data: str | None = None
+    measures_data: str | None = None
+    visits_data: str | None = None
     model_config = ConfigDict(from_attributes=True)

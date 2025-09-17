@@ -1,7 +1,7 @@
 from ..core.base import Base
 from ..core.enums import ShiftType
 
-from sqlalchemy import ForeignKey, DateTime, String, Integer, func, Text, Date
+from sqlalchemy import ForeignKey, DateTime, String, Integer, func, Text, Date, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, date as date_type
 from typing import TYPE_CHECKING, List
@@ -18,7 +18,8 @@ class Schedule(Base):
     __tablename__ = "schedules"
 
     date: Mapped[date_type] = mapped_column(Date, nullable=False)
-    shift: Mapped[str] = mapped_column(String(20), nullable=False)
+    shift_type: Mapped[ShiftType | None] = mapped_column(Enum(ShiftType), nullable=True)
+    custom_shift: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
     employees: Mapped[List["ScheduleEmployee"]] = relationship(
         back_populates="schedule"
@@ -33,14 +34,6 @@ class Schedule(Base):
         DateTime, nullable=False, server_default=func.now()
     )
 
-    @property
-    def shift_enum(self) -> ShiftType:
-        return ShiftType(self.shift)
-
-    @shift_enum.setter
-    def shift_enum(self, value: ShiftType):
-        self.shift = value.value
-
     def __repr__(self) -> str:
         return f"<Schedule {self.date}>"
 
@@ -50,7 +43,9 @@ class ScheduleArchive(Base):
 
     original_schedule_id: Mapped[int] = mapped_column(Integer, nullable=False)
     original_date: Mapped[date_type] = mapped_column(Date, nullable=False)
-    shift: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    shift_type: Mapped[ShiftType | None] = mapped_column(Enum(ShiftType), nullable=True)
+    custom_shift: Mapped[str | None] = mapped_column(String(50), nullable=True)
 
     employee_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     customer_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -75,7 +70,8 @@ class ScheduleArchive(Base):
     notes: Mapped[str] = mapped_column(Text, nullable=True)
 
     def __repr__(self) -> str:
-        return f"<ScheduleArchive {self.original_date} (original_id={self.original_schedule_id})>"
+        shift_info = self.shift_type.value if self.shift_type else self.custom_shift
+        return f"<ScheduleArchive {self.original_date} (original_id={self.original_schedule_id}, shift={shift_info})>"
 
 
 class ScheduleEmployee(Base):
@@ -108,7 +104,6 @@ class ScheduleMeasure(Base):
         DateTime, nullable=False, server_default=func.now()
     )
 
-    #
     schedule: Mapped["Schedule"] = relationship(back_populates="measures")
     measure: Mapped["Measure"] = relationship(back_populates="schedules")
 
