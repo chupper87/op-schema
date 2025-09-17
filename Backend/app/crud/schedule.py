@@ -1,7 +1,7 @@
 from typing import Optional
 from datetime import date as date_type
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from sqlalchemy.exc import IntegrityError
 from ..schemas.schedule import ScheduleBaseSchema
 from ..models.schedule import Schedule
@@ -34,14 +34,23 @@ def get_schedules(
     limit: int = 100,
     shift_type: Optional[ShiftType] = None,
     date: Optional[date_type] = None,
+    start_date: Optional[date_type] = None,
+    end_date: Optional[date_type] = None,
 ) -> list[Schedule]:
     query = select(Schedule).order_by(Schedule.date).offset(skip).limit(limit)
 
+    filters = []
     if shift_type:
-        query = query.where(Schedule.shift_type == shift_type)
-
+        filters.append(Schedule.shift_type == shift_type)
     if date:
-        query = query.where(Schedule.date == date)
+        filters.append(Schedule.date == date)
+    if start_date:
+        filters.append(Schedule.date >= start_date)
+    if end_date:
+        filters.append(Schedule.date <= end_date)
+
+    if filters:
+        query = query.where(and_(*filters))
 
     return list(db.execute(query).scalars().all())
 
@@ -76,3 +85,31 @@ def delete_schedule(db: Session, schedule_id: int) -> bool:
     db.delete(schedule)
     db.commit()
     return True
+
+
+def duplicate_schedule(
+    db: Session, source_date: date_type, target_date: date_type
+) -> Optional[Schedule]:
+    stmt = select(Schedule).where(Schedule.date == source_date)
+    source_schedule = db.execute(stmt).scalar_one_or_none()
+
+    if not source_schedule:
+        return None
+
+    stmt = select(Schedule).where(Schedule.date == target_date)
+    if db.execute(stmt).scalar_one_or_none():
+        raise ValueError(f"Schedule for {target_date} already exists.")
+
+    try:
+        new_schedule = Schedule(
+            date=target_date,
+            shift_type=source_schedule.shift_type,
+            custom_shift=source_schedule.custom_shift,
+        )
+        db.add(new_schedule)
+        db.commit()
+        db.refresh(new_schedule)
+        return new_schedule
+    except IntegrityError:
+        db.rollback()
+        raise

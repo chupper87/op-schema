@@ -19,6 +19,7 @@ from ..crud.schedule import (
     get_schedule_by_id,
     update_schedule,
     delete_schedule,
+    duplicate_schedule,
 )
 
 router = APIRouter(tags=["schedules"], prefix="/schedules")
@@ -51,16 +52,25 @@ async def list_schedules(
     skip: int = Query(0, ge=0, description="Number of records to skip for pagination"),
     limit: int = Query(100, le=1000, description="Max number of records to return"),
     shift_type: Optional[ShiftType] = Query(None, description="Filter by shift type"),
-    date: Optional[date_type] = Query(None, description="Filter by date"),
+    date: Optional[date_type] = Query(None, description="Filter by exact date"),
+    start_date: Optional[date_type] = Query(None, description="Filter by start date"),
+    end_date: Optional[date_type] = Query(None, description="Filter by end date"),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
     schedules = get_schedules(
-        db, skip=skip, limit=limit, shift_type=shift_type, date=date
+        db,
+        skip=skip,
+        limit=limit,
+        shift_type=shift_type,
+        date=date,
+        start_date=start_date,
+        end_date=end_date,
     )
     logger.info(
         f"Admin {current_user.username} listed {len(schedules)} schedules "
-        f"(skip={skip}, limit={limit}, shift_type={shift_type}, date={date})"
+        f"(skip={skip}, limit={limit}, shift_type={shift_type}, date={date}, "
+        f"start_date={start_date}, end_date={end_date})"
     )
     return schedules
 
@@ -114,3 +124,24 @@ async def delete_schedule_endpoint(
             detail=f"Schedule with ID {schedule_id} not found",
         )
     logger.info(f"Schedule {schedule_id} deleted by admin {current_user.username}")
+
+
+@router.post(
+    "/duplicate",
+    response_model=ScheduleOutSchema,
+    status_code=status.HTTP_201_CREATED,
+)
+async def duplicate_schedule_endpoint(
+    source_date: date_type,
+    target_date: date_type,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    try:
+        new_schedule = duplicate_schedule(
+            db, source_date=source_date, target_date=target_date
+        )
+        logger.info(f"Duplicated schedule from {source_date} to {target_date}")
+        return new_schedule
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
