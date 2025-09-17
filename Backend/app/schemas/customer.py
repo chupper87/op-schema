@@ -6,7 +6,7 @@ from ..core.enums import CareLevel, Gender
 class CustomerBaseSchema(BaseModel):
     first_name: str
     last_name: str
-    key_number: str
+    key_number: int
     address: str
     care_level: CareLevel
     gender: Gender
@@ -17,7 +17,7 @@ class CustomerBaseSchema(BaseModel):
 class CustomerUpdateSchema(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
-    key_number: str | None = None
+    key_number: int | None = None
     address: str | None = None
     care_level: CareLevel | None = None
     gender: Gender | None = None

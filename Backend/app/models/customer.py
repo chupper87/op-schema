@@ -16,7 +16,7 @@ class Customer(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    key_number: Mapped[str] = mapped_column(String(50), nullable=False)
+    key_number: Mapped[int] = mapped_column(Integer, nullable=False, unique=True)
     address: Mapped[str] = mapped_column(String(255), nullable=False)
     care_level: Mapped[str] = mapped_column(String(20), nullable=True)
     gender: Mapped[str] = mapped_column(String(10), nullable=True)

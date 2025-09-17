@@ -42,7 +42,7 @@ def test_update_customer_success(db, client):
     customer_data = CustomerBaseSchema(
         first_name="John",
         last_name="Doe",
-        key_number="KEY123",
+        key_number=12345,
         address="Main St",
         care_level=CareLevel.MEDIUM,
         gender=Gender.MALE,

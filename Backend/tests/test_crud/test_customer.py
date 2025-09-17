@@ -5,8 +5,10 @@ from Backend.app.crud.customer import (
     create_customer,
     get_customers,
     get_customer_by_id,
-    remove_customer,
+    delete_customer,
     deactivate_customer,
+    search_customers,
+    customer_exists,
 )
 from Backend.app.core.enums import Gender, CareLevel
 
@@ -15,7 +17,7 @@ def test_create_customer(db):
     customer_data = CustomerBaseSchema(
         first_name="John",
         last_name="Doe",
-        key_number="JD123",
+        key_number=555,
         address="123 Main St",
         care_level=CareLevel.HIGH,
         gender=Gender.MALE,
@@ -37,7 +39,7 @@ def test_create_customer_duplicate_key_number(db):
     data = CustomerBaseSchema(
         first_name="Alice",
         last_name="Smith",
-        key_number="DUP123",
+        key_number=123,
         address="Street 1",
         care_level=CareLevel.HIGH,
         gender=Gender.FEMALE,
@@ -54,7 +56,7 @@ def test_get_customers_active_only(db):
     active = CustomerBaseSchema(
         first_name="Active",
         last_name="User",
-        key_number="ACT123",
+        key_number=321,
         address="Active St",
         care_level=CareLevel.MEDIUM,
         gender=Gender.MALE,
@@ -64,7 +66,7 @@ def test_get_customers_active_only(db):
     inactive = CustomerBaseSchema(
         first_name="Inactive",
         last_name="User",
-        key_number="INA123",
+        key_number=654,
         address="Inactive St",
         care_level=CareLevel.LOW,
         gender=Gender.FEMALE,
@@ -85,7 +87,7 @@ def test_get_customers_include_inactive(db):
     data = CustomerBaseSchema(
         first_name="Carol",
         last_name="Inactive",
-        key_number="INA123",
+        key_number=987,
         address="Inactive St",
         care_level=CareLevel.LOW,
         gender=Gender.FEMALE,
@@ -103,7 +105,7 @@ def test_get_customer_by_id(db):
     data = CustomerBaseSchema(
         first_name="Diana",
         last_name="Prince",
-        key_number="WW123",
+        key_number=222,
         address="Themyscira",
         care_level=CareLevel.HIGH,
         gender=Gender.FEMALE,
@@ -121,7 +123,7 @@ def test_get_customer_by_id_inactive_filtered_out(db):
     data = CustomerBaseSchema(
         first_name="Ed",
         last_name="Inactive",
-        key_number="INA456",
+        key_number=111,
         address="Hidden St",
         care_level=CareLevel.LOW,
         gender=Gender.MALE,
@@ -143,7 +145,7 @@ def test_delete_customer_success(db):
     customer_data = CustomerBaseSchema(
         first_name="Test",
         last_name="Customer",
-        key_number="DEL123",
+        key_number=777,
         address="Somewhere",
         care_level=CareLevel.MEDIUM,
         gender=Gender.MALE,
@@ -152,7 +154,7 @@ def test_delete_customer_success(db):
     )
     customer = create_customer(db, customer_data)
 
-    result = remove_customer(db, customer.id)
+    result = delete_customer(db, customer.id)
 
     # Assert
     assert result is True
@@ -165,7 +167,7 @@ def test_delete_customer_not_found(db):
     non_existing_id = 99999
 
     # Act
-    result = remove_customer(db, non_existing_id)
+    result = delete_customer(db, non_existing_id)
 
     # Assert
     assert result is False
@@ -175,7 +177,7 @@ def test_deactivate_customer_success(db):
     data = CustomerBaseSchema(
         first_name="Active",
         last_name="Customer",
-        key_number="ACT123",
+        key_number=987,
         address="Street 1",
         care_level=CareLevel.MEDIUM,
         gender=Gender.MALE,
@@ -194,7 +196,7 @@ def test_deactivate_customer_already_inactive(db):
     data = CustomerBaseSchema(
         first_name="Inactive",
         last_name="Customer",
-        key_number="INA123",
+        key_number=654,
         address="Street 2",
         care_level=CareLevel.LOW,
         gender=Gender.FEMALE,
@@ -210,7 +212,7 @@ def test_activate_customer_success(db):
     data = CustomerBaseSchema(
         first_name="Inactive",
         last_name="Customer",
-        key_number="INA456",
+        key_number=654,
         address="Street 3",
         care_level=CareLevel.HIGH,
         gender=Gender.FEMALE,
@@ -229,7 +231,7 @@ def test_activate_customer_already_active(db):
     data = CustomerBaseSchema(
         first_name="Active",
         last_name="Customer",
-        key_number="ACT456",
+        key_number=321,
         address="Street 4",
         care_level=CareLevel.MEDIUM,
         gender=Gender.MALE,
@@ -239,3 +241,68 @@ def test_activate_customer_already_active(db):
     customer = create_customer(db, data)
     result = activate_customer(db, customer.id)
     assert result is False
+
+
+def test_search_customers(db):
+    cust1 = CustomerBaseSchema(
+        first_name="Alice",
+        last_name="Wonderland",
+        key_number=321,
+        address="Fantasy Rd",
+        care_level=CareLevel.LOW,
+        gender=Gender.FEMALE,
+        approved_hours=25.0,
+        is_active=True,
+    )
+    cust2 = CustomerBaseSchema(
+        first_name="Bob",
+        last_name="Builder",
+        key_number=876,
+        address="Construction Ave",
+        care_level=CareLevel.MEDIUM,
+        gender=Gender.MALE,
+        approved_hours=30.0,
+        is_active=True,
+    )
+
+    alice = create_customer(db, cust1)
+    bob = create_customer(db, cust2)
+
+    # Search by first name
+    results = search_customers(db, query="Alice")
+    assert any(c.id == alice.id for c in results)
+    assert all("Alice" in c.first_name for c in results)
+
+    # Search by last name
+    results = search_customers(db, query="Builder")
+    assert any(c.id == bob.id for c in results)
+
+    # Search by key_number
+    results = search_customers(db, query="321")
+    assert len(results) == 1
+    assert results[0].id == alice.id
+
+    # Search with no match
+    results = search_customers(db, query="Nonexistent")
+    assert results == []
+
+
+def test_customer_exists(db):
+    # Create a customer with a specific key_number
+    customer_data = CustomerBaseSchema(
+        first_name="Test",
+        last_name="Exists",
+        key_number=566,
+        address="Exist St",
+        care_level=CareLevel.HIGH,
+        gender=Gender.MALE,
+        approved_hours=10.0,
+        is_active=True,
+    )
+    create_customer(db, customer_data)
+
+    # Positive case → should exist
+    assert customer_exists(db, key_number=566) is True
+
+    # Negative case → pick a different number
+    assert customer_exists(db, key_number=999) is False

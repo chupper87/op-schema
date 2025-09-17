@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from ..core.db_setup import get_db
 from ..core.security import RoleChecker, RoleType
 from ..core.logger import logger
+from ..core.enums import CareLevel
 from ..schemas.customer import (
     CustomerOutSchema,
     CustomerBaseSchema,
@@ -13,10 +14,12 @@ from ..crud.customer import (
     activate_customer,
     create_customer,
     deactivate_customer,
-    remove_customer,
+    delete_customer,
     get_customers,
     get_customer_by_id,
     update_customer,
+    search_customers,
+    customer_exists,
 )
 
 
@@ -95,7 +98,7 @@ async def get_customer(
     return customer
 
 
-@router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{customer_id}", status_code=status.HTTP_200_OK)
 async def delete_customer_endpoint(
     customer_id: int,
     db: Session = Depends(get_db),
@@ -103,7 +106,7 @@ async def delete_customer_endpoint(
 ):
     logger.info(f"Admin {current_user.username} is deleting customer {customer_id}")
 
-    success = remove_customer(db, customer_id=customer_id)
+    success = delete_customer(db, customer_id=customer_id)
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -111,8 +114,9 @@ async def delete_customer_endpoint(
         )
 
     logger.info(
-        f"Customer {customer_id} deleted successfully by admin {current_user.username}"
+        f"Customer {customer_id} permanently deleted by admin {current_user.username}"
     )
+    return {"detail": f"Customer {customer_id} has been permanently deleted"}
 
 
 @router.put("/{customer_id}/deactivate", status_code=status.HTTP_204_NO_CONTENT)
@@ -171,3 +175,38 @@ async def update_customer_endpoint(
         )
 
     return customer
+
+
+@router.get(
+    "/search", response_model=list[CustomerOutSchema], status_code=status.HTTP_200_OK
+)
+async def search_customers_endpoint(
+    q: str | None = None,
+    care_level: CareLevel | None = None,
+    is_active: bool | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    customers = search_customers(
+        db, query=q, care_level=care_level, is_active=is_active
+    )
+
+    if not customers:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No customers found",
+        )
+
+    logger.info(f"Found {len(customers)} customer(s) for query='{q}'")
+
+    return customers
+
+
+@router.get("/exists/{key_number}", status_code=status.HTTP_200_OK)
+async def check_customer_exists(
+    key_number: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    exists = customer_exists(db, key_number=key_number)
+    return {"exists": exists}

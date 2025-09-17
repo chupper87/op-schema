@@ -1,10 +1,11 @@
 from typing import Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.exc import IntegrityError
 
 from ..schemas.customer import CustomerBaseSchema, CustomerUpdateSchema
 from ..models.customer import Customer
+from ..core.enums import CareLevel
 
 
 def create_customer(db: Session, data: CustomerBaseSchema) -> Customer:
@@ -64,7 +65,7 @@ def get_customer_by_id(
     return customer
 
 
-def remove_customer(db: Session, customer_id: int) -> bool:
+def delete_customer(db: Session, customer_id: int) -> bool:
     stmt = select(Customer).where(Customer.id == customer_id)
     customer = db.execute(stmt).scalar_one_or_none()
 
@@ -127,3 +128,43 @@ def update_customer(
     except IntegrityError:
         db.rollback()
         raise
+
+
+def search_customers(
+    db: Session,
+    query: str | None = None,
+    care_level: CareLevel | None = None,
+    is_active: bool | None = None,
+) -> list[Customer]:
+    stmt = select(Customer)
+
+    if query:
+        # Build search conditions
+        search_conditions = [
+            Customer.first_name.ilike(f"%{query}%"),
+            Customer.last_name.ilike(f"%{query}%"),
+            Customer.address.ilike(f"%{query}%"),
+        ]
+
+        # Try to parse query as integer for exact key_number match
+        try:
+            key_number_query = int(query)
+            search_conditions.append(Customer.key_number == key_number_query)
+        except ValueError:
+            # Query is not a number, skip key_number search
+            pass
+
+        stmt = stmt.where(or_(*search_conditions))
+
+    if care_level:
+        stmt = stmt.where(Customer.care_level == care_level)
+
+    if is_active is not None:
+        stmt = stmt.where(Customer.is_active == is_active)
+
+    return list(db.execute(stmt).scalars().all())
+
+
+def customer_exists(db: Session, key_number: int) -> bool:
+    stmt = select(Customer).where(Customer.key_number == key_number)
+    return db.execute(stmt).scalar_one_or_none() is not None
