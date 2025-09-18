@@ -2,10 +2,10 @@ from typing import List
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, status, HTTPException, Query
 
+from ..dependencies import require_admin
 from ..models import User
 from ..core.enums import RoleType
 from ..core.db_setup import get_db
-from ..core.security import RoleChecker
 from ..core.logger import logger
 from ..schemas.user import (
     UserOutSchema,
@@ -31,8 +31,6 @@ from ..crud.user import (
 )
 
 router = APIRouter(tags=["users"], prefix="/users")
-
-require_admin = RoleChecker([RoleType.ADMIN])
 
 
 @router.get("/", response_model=list[UserOutSchema], status_code=status.HTTP_200_OK)

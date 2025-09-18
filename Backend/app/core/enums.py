@@ -16,10 +16,10 @@ class CareLevel(str, Enum):
 
 
 class ShiftType(str, Enum):
-    MORNING = "morning"
-    DAY = "day"
-    EVENING = "evening"
-    NIGHT = "night"
+    MORNING = "MORNING"
+    DAY = "DAY"
+    EVENING = "EVENING"
+    NIGHT = "NIGHT"
 
 
 class AbsenceType(str, Enum):

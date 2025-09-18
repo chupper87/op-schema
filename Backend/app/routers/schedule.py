@@ -3,6 +3,7 @@ from fastapi import APIRouter, status, Query, Depends, HTTPException
 from typing import Optional
 from datetime import date as date_type
 
+from ..dependencies import require_admin
 from ..core.logger import logger
 from ..models.auth import User
 from ..schemas.schedule import (
@@ -11,8 +12,7 @@ from ..schemas.schedule import (
     ScheduleUpdateSchema,
 )
 from ..core.db_setup import get_db
-from ..core.enums import RoleType, ShiftType
-from ..core.security import RoleChecker
+from ..core.enums import ShiftType
 from ..crud.schedule import (
     get_schedules,
     create_schedule,
@@ -23,8 +23,6 @@ from ..crud.schedule import (
 )
 
 router = APIRouter(tags=["schedules"], prefix="/schedules")
-
-require_admin = RoleChecker([RoleType.ADMIN])
 
 
 @router.post(

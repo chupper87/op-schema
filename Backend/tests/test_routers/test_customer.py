@@ -7,7 +7,7 @@ from Backend.app.models import User, Employee
 from Backend.app.core.enums import CareLevel, Gender, RoleType
 from Backend.app.core.db_setup import get_db
 from Backend.app.schemas.customer import CustomerBaseSchema
-from Backend.app.routers.customer import require_admin
+from Backend.app.dependencies import require_admin
 
 
 def override_get_db(db):

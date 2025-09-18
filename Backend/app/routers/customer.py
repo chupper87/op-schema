@@ -1,7 +1,9 @@
 from fastapi import APIRouter, status, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+
+from ..dependencies import require_admin
 from ..core.db_setup import get_db
-from ..core.security import RoleChecker, RoleType
+
 from ..core.logger import logger
 from ..core.enums import CareLevel
 from ..schemas.customer import (
@@ -24,8 +26,6 @@ from ..crud.customer import (
 
 
 router = APIRouter(tags=["customer"], prefix="/customers")
-
-require_admin = RoleChecker([RoleType.ADMIN])
 
 
 @router.post(
