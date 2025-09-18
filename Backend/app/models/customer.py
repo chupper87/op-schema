@@ -1,6 +1,16 @@
 from ..core.base import Base
 from ..core.enums import CareLevel
-from sqlalchemy import ForeignKey, DateTime, Boolean, String, Integer, func, Float, Text
+from sqlalchemy import (
+    ForeignKey,
+    DateTime,
+    Boolean,
+    String,
+    Integer,
+    func,
+    Float,
+    Text,
+    JSON,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from typing import TYPE_CHECKING, List
@@ -56,13 +66,19 @@ class CustomerMeasure(Base):
     measure_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("measures.id"), nullable=False
     )
-    customer_duration: Mapped[int] = mapped_column(Integer, nullable=True)
-    customer_frequency: Mapped[str] = mapped_column(String(50), nullable=True)
-    customer_notes: Mapped[str] = mapped_column(Text, nullable=True)
 
-    customer_time_of_day: Mapped[str] = mapped_column(String(20), nullable=True)
-    customer_time_flexibility: Mapped[str] = mapped_column(String(20), nullable=True)
-    schedule_info: Mapped[str] = mapped_column(Text, nullable=True)
+    customer_duration: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    customer_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    frequency: Mapped[str] = mapped_column(String(50), nullable=False, default="WEEKLY")
+    days_of_week: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
+    occurrences_per_week: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    customer_time_of_day: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    customer_time_flexibility: Mapped[str | None] = mapped_column(
+        String(20), nullable=True
+    )
+    schedule_info: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated: Mapped[datetime] = mapped_column(

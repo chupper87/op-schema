@@ -1,27 +1,32 @@
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from ..core.enums import TimeFlexibility, TimeOfDay
+from typing import Optional, List
 
 
 class CustomerMeasureBaseSchema(BaseModel):
     measure_id: int
     customer_id: int
-    customer_duration: int | None = None
-    customer_frequency: str | None = None
-    customer_notes: str | None = None
-    customer_time_of_day: TimeOfDay | None = None
-    customer_time_flexibility: TimeFlexibility | None = None
-    schedule_info: str | None = None
+    customer_duration: Optional[int] = None
+    frequency: str  # t.ex. "daily", "weekly", "monthly"
+    days_of_week: Optional[List[str]] = None  # t.ex. ["monday", "thursday"]
+    occurrences_per_week: Optional[int] = None
+    customer_notes: Optional[str] = None
+    customer_time_of_day: Optional[TimeOfDay] = None
+    customer_time_flexibility: Optional[TimeFlexibility] = None
+    schedule_info: Optional[str] = None
 
 
 class CustomerMeasureCreateSchema(BaseModel):
     measure_id: int
-    customer_duration: int | None = None
-    customer_frequency: str | None = None
-    customer_notes: str | None = None
-    customer_time_of_day: TimeOfDay | None = None
-    customer_time_flexibility: TimeFlexibility | None = None
-    schedule_info: str | None = None
+    customer_duration: Optional[int] = None
+    frequency: str
+    days_of_week: Optional[List[str]] = None
+    occurrences_per_week: Optional[int] = None
+    customer_notes: Optional[str] = None
+    customer_time_of_day: Optional[TimeOfDay] = None
+    customer_time_flexibility: Optional[TimeFlexibility] = None
+    schedule_info: Optional[str] = None
 
 
 class CustomerMeasureOutSchema(CustomerMeasureBaseSchema):
