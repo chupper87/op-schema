@@ -1,6 +1,6 @@
 from ..core.base import Base
 
-from sqlalchemy import ForeignKey, DateTime, String, Integer, func, Text
+from sqlalchemy import ForeignKey, DateTime, String, Integer, func, Text, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from typing import TYPE_CHECKING, List
@@ -20,6 +20,9 @@ class Measure(Base):
     text: Mapped[str] = mapped_column(Text, nullable=True)
     time_of_day: Mapped[str] = mapped_column(String(20), nullable=True)
     time_flexibility: Mapped[str] = mapped_column(String(20), nullable=True)
+
+    is_standard: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated: Mapped[datetime] = mapped_column(

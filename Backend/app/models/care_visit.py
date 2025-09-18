@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .schedule import Schedule
     from .measure import MeasureCareVisit
     from .employee import EmployeeCareVisit
+    from .customer import Customer
 
 
 class CareVisit(Base):
@@ -27,6 +28,10 @@ class CareVisit(Base):
     schedule: Mapped["Schedule"] = relationship(
         "Schedule", back_populates="care_visits"
     )
+
+    customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"), nullable=False)
+    customer: Mapped["Customer"] = relationship(back_populates="care_visits")
+
     measures: Mapped[List["MeasureCareVisit"]] = relationship(
         back_populates="care_visit"
     )

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, List
 if TYPE_CHECKING:
     from .schedule import ScheduleCustomer
     from .measure import Measure
+    from .care_visit import CareVisit
 
 
 class Customer(Base):
@@ -34,6 +35,7 @@ class Customer(Base):
     schedules: Mapped[List["ScheduleCustomer"]] = relationship(
         back_populates="customer"
     )
+    care_visits: Mapped[List["CareVisit"]] = relationship(back_populates="customer")
     measures: Mapped[List["CustomerMeasure"]] = relationship(back_populates="customer")
 
     @property
