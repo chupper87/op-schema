@@ -29,7 +29,9 @@ class CareVisit(Base):
         "Schedule", back_populates="care_visits"
     )
 
-    customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"), nullable=False)
+    customer_id: Mapped[int] = mapped_column(
+        ForeignKey("customers.id", name="fk_care_visits_customer_id"), nullable=False
+    )
     customer: Mapped["Customer"] = relationship(back_populates="care_visits")
 
     measures: Mapped[List["MeasureCareVisit"]] = relationship(
