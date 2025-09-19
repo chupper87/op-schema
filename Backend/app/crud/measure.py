@@ -76,3 +76,19 @@ def get_measure_by_id(
     measure = db.execute(stmt).scalar_one_or_none()
 
     return measure
+
+
+def delete_measure(db: Session, measure_id: int) -> bool:
+    stmt = select(Measure).where(Measure.id == measure_id)
+    measure = db.execute(stmt).scalar_one_or_none()
+
+    if not measure:
+        return False
+
+    try:
+        db.delete(measure)
+        db.commit()
+        return True
+    except IntegrityError:
+        db.rollback()
+        return False

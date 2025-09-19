@@ -72,9 +72,13 @@ def delete_customer(db: Session, customer_id: int) -> bool:
     if not customer:
         return False
 
-    db.delete(customer)
-    db.commit()
-    return True
+    try:
+        db.delete(customer)
+        db.commit()
+        return True
+    except IntegrityError:
+        db.rollback()
+        raise
 
 
 def deactivate_customer(db: Session, customer_id: int) -> bool:

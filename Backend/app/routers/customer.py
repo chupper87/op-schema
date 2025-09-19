@@ -98,7 +98,7 @@ async def get_customer(
     return customer
 
 
-@router.delete("/{customer_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_customer_endpoint(
     customer_id: int,
     db: Session = Depends(get_db),
@@ -116,7 +116,6 @@ async def delete_customer_endpoint(
     logger.info(
         f"Customer {customer_id} permanently deleted by admin {current_user.username}"
     )
-    return {"detail": f"Customer {customer_id} has been permanently deleted"}
 
 
 @router.put("/{customer_id}/deactivate", status_code=status.HTTP_204_NO_CONTENT)
