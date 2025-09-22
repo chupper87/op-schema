@@ -1,18 +1,27 @@
 from typing import Optional
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, status, Depends, HTTPException, Query
 
 from ..models.auth import User
-from core.logger import logger
+from ..core.logger import logger
 from ..core.enums import TimeOfDay, TimeFlexibility
 from ..core.db_setup import get_db
+from ..core.exceptions import MeasureNotFoundError
 from ..crud.measure import (
     create_measure,
     get_measures,
     get_measure_by_id,
     delete_measure,
+    update_measure,
+    set_measure_status,
 )
-from ..schemas.measure import MeasureOutSchema, MeasureBaseSchema
+from ..schemas.measure import (
+    MeasureOutSchema,
+    MeasureBaseSchema,
+    MeasureUpdateSchema,
+    MeasureStatusUpdateSchema,
+)
 from ..dependencies import require_admin
 
 
@@ -31,16 +40,14 @@ async def create_measure_endpoint(
 ):
     try:
         new_measure = create_measure(db, data)
-
         logger.info(
-            f"{current_user.username} created a new measure: {new_measure.name} created"
+            f"{current_user.username} created a new measure: {new_measure.name}"
         )
         return new_measure
-
-    except ValueError as e:
+    except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=str(e),
+            detail=f"Measure with name '{data.name}' already exists",
         )
 
 
@@ -118,3 +125,45 @@ async def delete_measure_endpoint(
         )
 
     logger.info(f"Measure {measure_id} was deleted by {current_user.username}")
+
+
+@router.patch(
+    "/{measure_id}", response_model=MeasureUpdateSchema, status_code=status.HTTP_200_OK
+)
+async def update_measure_endpoint(
+    measure_id: int,
+    data: MeasureUpdateSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    measure = update_measure(db, measure_id=measure_id, data=data)
+
+    if not measure:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Measure with ID {measure_id} not found",
+        )
+
+    logger.info(f"Admin {current_user.username} updated measure: {measure.name}")
+
+    return measure
+
+
+@router.put("/{measure_id}/status", response_model=MeasureBaseSchema)
+async def set_measure_status_endpoint(
+    measure_id: int,
+    status_data: MeasureStatusUpdateSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    try:
+        measure = set_measure_status(db, measure_id, status_data.is_active)
+        logger.info(
+            f"Admin {current_user.username} updated measure {measure_id} status"
+        )
+        return measure
+    except MeasureNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Measure with ID {measure_id} not found",
+        )

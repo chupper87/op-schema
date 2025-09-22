@@ -173,6 +173,10 @@ async def update_customer_endpoint(
             detail=f"Customer with ID {customer_id} not found",
         )
 
+    logger.info(
+        f"Admin {current_user.username} updated customer {customer.first_name} {customer.last_name}"
+    )
+
     return customer
 
 

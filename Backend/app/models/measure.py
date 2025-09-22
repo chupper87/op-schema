@@ -1,6 +1,5 @@
 from ..core.base import Base
-
-from sqlalchemy import ForeignKey, DateTime, String, Integer, func, Text, Boolean
+from sqlalchemy import ForeignKey, DateTime, String, Integer, func, Text, Boolean, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from typing import TYPE_CHECKING, List
@@ -20,13 +19,20 @@ class Measure(Base):
     text: Mapped[str] = mapped_column(Text, nullable=True)
     time_of_day: Mapped[str] = mapped_column(String(20), nullable=True)
     time_flexibility: Mapped[str] = mapped_column(String(20), nullable=True)
-
     is_standard: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
+    )
+
+    # Add indexes for performance
+    __table_args__ = (
+        Index("ix_measure_time_of_day", "time_of_day"),
+        Index("ix_measure_is_active", "is_active"),
+        Index("ix_measure_is_standard", "is_standard"),
+        Index("ix_measure_time_flexibility", "time_flexibility"),
+        Index("ix_measure_active_time", "is_active", "time_of_day"),
     )
 
     # Relationships

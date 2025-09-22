@@ -23,3 +23,7 @@ class MeasureOutSchema(MeasureBaseSchema):
     id: int
     created: datetime
     model_config = ConfigDict(from_attributes=True)
+
+
+class MeasureStatusUpdateSchema(BaseModel):
+    is_active: bool

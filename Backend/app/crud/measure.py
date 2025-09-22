@@ -2,18 +2,13 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from ..schemas.measure import MeasureBaseSchema
+from ..schemas.measure import MeasureBaseSchema, MeasureUpdateSchema
 from ..models.measure import Measure
 from ..core.enums import TimeOfDay, TimeFlexibility
+from ..core.exceptions import MeasureNotFoundError
 
 
 def create_measure(db: Session, data: MeasureBaseSchema):
-    stmt = select(Measure).where(Measure.name == data.name)
-    existing_measure = db.execute(stmt).scalar_one_or_none()
-
-    if existing_measure:
-        raise ValueError(f"Measure with name {data.name} already exists")
-
     try:
         measure = Measure(
             name=data.name,
@@ -91,4 +86,46 @@ def delete_measure(db: Session, measure_id: int) -> bool:
         return True
     except IntegrityError:
         db.rollback()
-        return False
+        raise
+
+
+def update_measure(
+    db: Session, measure_id: int, data: MeasureUpdateSchema
+) -> Optional[Measure]:
+    stmt = select(Measure).where(Measure.id == measure_id)
+
+    measure = db.execute(stmt).scalar_one_or_none()
+
+    if not measure:
+        return None
+
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(measure, field, value)
+
+    try:
+        db.commit()
+        db.refresh(measure)
+        return measure
+
+    except IntegrityError:
+        db.rollback()
+        raise
+
+
+def set_measure_status(db: Session, measure_id: int, is_active: bool) -> Measure:
+    stmt = select(Measure).where(Measure.id == measure_id)
+    measure = db.execute(stmt).scalar_one_or_none()
+    if not measure:
+        raise MeasureNotFoundError(measure_id)
+
+    if is_active == measure.is_active:
+        return measure
+
+    try:
+        measure.is_active = is_active
+        db.commit()
+        db.refresh(measure)
+        return measure
+    except IntegrityError:
+        db.rollback()
+        raise
