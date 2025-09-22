@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from ..schemas.customer import CustomerBaseSchema, CustomerUpdateSchema
 from ..models.customer import Customer
 from ..core.enums import CareLevel
+from ..core.exceptions import CustomerNotFoundError
 
 
 def create_customer(db: Session, data: CustomerBaseSchema) -> Customer:
@@ -81,36 +82,24 @@ def delete_customer(db: Session, customer_id: int) -> bool:
         raise
 
 
-def deactivate_customer(db: Session, customer_id: int) -> bool:
+def set_customer_status(db: Session, customer_id: int, is_active: bool) -> Customer:
     stmt = select(Customer).where(Customer.id == customer_id)
-
     customer = db.execute(stmt).scalar_one_or_none()
 
     if not customer:
-        return False
+        raise CustomerNotFoundError(customer_id)
 
-    if not customer.is_active:
-        return False
+    if is_active == customer.is_active:
+        return customer
 
-    customer.is_active = False
-    db.commit()
-    return True
-
-
-def activate_customer(db: Session, customer_id: int) -> bool:
-    stmt = select(Customer).where(Customer.id == customer_id)
-
-    customer = db.execute(stmt).scalar_one_or_none()
-
-    if not customer:
-        return False
-
-    if customer.is_active:
-        return False
-
-    customer.is_active = True
-    db.commit()
-    return True
+    try:
+        customer.is_active = is_active
+        db.commit()
+        db.refresh(customer)
+        return customer
+    except IntegrityError:
+        db.rollback()
+        raise
 
 
 def update_customer(

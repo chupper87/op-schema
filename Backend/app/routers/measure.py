@@ -29,7 +29,7 @@ router = APIRouter(tags=["measure"], prefix="/measures")
 
 
 @router.post(
-    "/create-measure",
+    "/",
     response_model=MeasureOutSchema,
     status_code=status.HTTP_201_CREATED,
 )
@@ -88,7 +88,9 @@ async def list_measures(
     return measures
 
 
-@router.get("/{measure_id}", status_code=status.HTTP_200_OK)
+@router.get(
+    "/{measure_id}", response_model=MeasureOutSchema, status_code=status.HTTP_200_OK
+)
 async def get_measure(
     measure_id: int,
     include_inactive: bool = Query(False, description="Include inactive measures"),
@@ -116,15 +118,22 @@ async def delete_measure_endpoint(
 ):
     logger.info(f"Admin {current_user.username} is deleting measure {measure_id}")
 
-    success = delete_measure(db, measure_id=measure_id)
+    try:
+        success = delete_measure(db, measure_id=measure_id)
 
-    if not success:
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Measure with ID {measure_id} not found",
+            )
+
+        logger.info(f"Measure {measure_id} was deleted by {current_user.username}")
+
+    except IntegrityError:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Measure with ID {measure_id} not found",
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Cannot delete measure {measure_id} - it may be referenced by other records",
         )
-
-    logger.info(f"Measure {measure_id} was deleted by {current_user.username}")
 
 
 @router.patch(

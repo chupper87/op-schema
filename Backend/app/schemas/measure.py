@@ -17,6 +17,8 @@ class MeasureUpdateSchema(BaseModel):
     text: str | None = None
     time_of_day: TimeOfDay | None = None
     time_flexibility: TimeFlexibility | None = None
+    is_active: bool | None = None
+    is_standard: bool | None = None
 
 
 class MeasureOutSchema(MeasureBaseSchema):

@@ -30,3 +30,7 @@ class CustomerOutSchema(CustomerBaseSchema):
     created: datetime
     updated: datetime
     model_config = ConfigDict(from_attributes=True)
+
+
+class CustomerStatusUpdateSchema(BaseModel):
+    is_active: bool
