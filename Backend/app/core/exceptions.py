@@ -14,3 +14,9 @@ class UserNotFoundError(Exception):
     def __init__(self, user_id: int):
         self.customer_id = user_id
         super().__init__(f"User with ID {user_id} not found")
+
+
+class CareVisitNotFoundError(Exception):
+    def __init__(self, carevisit_id: int):
+        self.carevisit_id = carevisit_id
+        super().__init__(f"Carevisit with ID {carevisit_id} not found")

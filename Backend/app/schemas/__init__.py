@@ -1,5 +1,5 @@
 from .absence import AbsenceBaseSchema, AbsenceOutSchema, AbsenceUpdateSchema
-from .carevisit import CareVisitBaseSchema, CareVisitOutSchema, CareVisitUpdateSchema
+from .care_visit import CareVisitBaseSchema, CareVisitOutSchema, CareVisitUpdateSchema
 from .customer import CustomerBaseSchema, CustomerOutSchema, CustomerUpdateSchema
 from .employee import EmployeeOutSchema, EmployeeUpdateSchema, EmployeeAdminCreateSchema
 from .measure import MeasureBaseSchema, MeasureOutSchema, MeasureUpdateSchema

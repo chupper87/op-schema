@@ -1,6 +1,6 @@
 from pydantic import ConfigDict
 from .schedule import ScheduleOutSchema
-from .carevisit import CareVisitOutSchema
+from .care_visit import CareVisitOutSchema
 from .employee import EmployeeOutSchema
 from .customer import CustomerOutSchema
 from .measure import MeasureOutSchema

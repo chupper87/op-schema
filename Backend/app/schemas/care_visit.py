@@ -18,10 +18,6 @@ class CareVisitBaseSchema(BaseModel):
     customer_id: int
 
 
-class CareVisitCreateSchema(CareVisitBaseSchema):
-    pass
-
-
 class CareVisitUpdateSchema(BaseModel):
     date: Optional[date_type] = None
     status: Optional[VisitStatus] = None
