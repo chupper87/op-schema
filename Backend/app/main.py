@@ -3,7 +3,7 @@ from .core.db_setup import init_db
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from .core.logger import logger
-from .routers import auth, user, customer, schedule
+from .routers import auth, user, customer, schedule, measure
 
 
 @asynccontextmanager
@@ -19,6 +19,7 @@ app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(customer.router)
 app.include_router(schedule.router)
+app.include_router(measure.router)
 
 
 @app.get("/")
