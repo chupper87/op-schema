@@ -104,3 +104,7 @@ class ResetPasswordSchema(BaseModel):
 class ChangeRoleSchema(BaseModel):
     is_superuser: Optional[bool] = None
     role: RoleType
+
+
+class UserStatusUpdateSchema(BaseModel):
+    is_active: bool

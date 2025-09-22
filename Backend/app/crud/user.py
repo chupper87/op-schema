@@ -4,6 +4,7 @@ from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from pydantic import EmailStr
+from ..core.exceptions import UserNotFoundError
 from ..core.logger import logger
 from ..core.enums import RoleType
 from ..models import User, Employee, Token
@@ -142,43 +143,26 @@ def update_user(db: Session, user_id: int, update_data: EmployeeUpdateSchema):
     return user
 
 
-def deactivate_user(db: Session, user_id: int) -> bool:
+def set_user_status(db: Session, user_id: int, is_active: bool) -> User:
     stmt = select(User).where(User.id == user_id)
-
     user = db.execute(stmt).scalar_one_or_none()
 
     if not user:
-        return False
+        raise UserNotFoundError(user_id)  # You'll need this exception
 
-    if not user.is_active:
-        return False
+    if is_active == user.is_active:
+        return user
 
-    user.is_active = False
-    if user.employee:
-        user.employee.is_active = False
-
-    db.commit()
-    return True
-
-
-def activate_user(db: Session, user_id: int) -> bool:
-    stmt = select(User).where(User.id == user_id)
-
-    user = db.execute(stmt).scalar_one_or_none()
-
-    if not user:
-        return False
-
-    if user.is_active:
-        return False
-
-    user.is_active = True
-    if user.employee:
-        user.employee.is_active = True
-
-    db.commit()
-
-    return True
+    try:
+        user.is_active = is_active
+        if user.employee:
+            user.employee.is_active = is_active
+        db.commit()
+        db.refresh(user)
+        return user
+    except IntegrityError:
+        db.rollback()
+        raise
 
 
 def get_users(

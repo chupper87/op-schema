@@ -6,8 +6,6 @@ from Backend.app.crud.user import (
     complete_registration,
     logout_user,
     delete_user,
-    deactivate_user,
-    activate_user,
     get_users,
     get_user_by_id,
     login_user,
@@ -193,44 +191,6 @@ def test_delete_user_not_found(db):
     result = delete_user(db, user_id=999)
 
     assert result is False
-
-
-def test_deactivate_user(db):
-    user = User(
-        email="test@example.com",
-        username="test@example.com",
-        hashed_password="hashedpw",
-        is_active=True,
-        is_superuser=False,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    result = deactivate_user(db, user.id)
-
-    assert result is True
-    db.refresh(user)
-    assert user.is_active is False
-
-
-def test_activate_user(db):
-    user = User(
-        email="test@example.com",
-        username="test@example.com",
-        hashed_password="hashedpw",
-        is_active=False,
-        is_superuser=False,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    result = activate_user(db, user.id)
-
-    assert result is True
-    db.refresh(user)
-    assert user.is_active is True
 
 
 def test_get_users_include_inactive(db):

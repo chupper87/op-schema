@@ -7,6 +7,7 @@ from ..models import User
 from ..core.enums import RoleType
 from ..core.db_setup import get_db
 from ..core.logger import logger
+from ..core.exceptions import UserNotFoundError
 from ..schemas.user import (
     UserOutSchema,
     UserWithEmployeeOutSchema,
@@ -14,12 +15,12 @@ from ..schemas.user import (
     RequestPasswordResetSchema,
     ResetPasswordSchema,
     ChangeRoleSchema,
+    UserStatusUpdateSchema,
 )
 from ..schemas.employee import EmployeeUpdateSchema
 from ..crud.user import (
     delete_user,
-    deactivate_user,
-    activate_user,
+    set_user_status,
     get_users,
     get_user_by_id,
     update_user,
@@ -89,34 +90,22 @@ async def delete_user_endpoint(
     logger.info(f"User {user_id} deleted successfully by admin {current_user.username}")
 
 
-@router.put("/{user_id}/deactivate", status_code=status.HTTP_204_NO_CONTENT)
-async def deactivate_user_endpoint(
+@router.put("/{user_id}/status", response_model=UserOutSchema)
+async def set_user_status_endpoint(
     user_id: int,
+    status_data: UserStatusUpdateSchema,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
-    success = deactivate_user(db, user_id=user_id)
-    if not success:
+    try:
+        user = set_user_status(db, user_id, status_data.is_active)
+        logger.info(f"Admin {current_user.username} updated user {user_id} status")
+        return user
+    except UserNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found or already inactive",
+            detail=f"User with ID {user_id} not found",
         )
-    logger.info(f"User {user_id} deactivated")
-
-
-@router.put("/{user_id}/activate", status_code=status.HTTP_204_NO_CONTENT)
-async def activate_user_endpoint(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
-):
-    success = activate_user(db, user_id=user_id)
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found or already active",
-        )
-    logger.info(f"User {user_id} activated")
 
 
 @router.put(
