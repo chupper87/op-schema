@@ -6,13 +6,14 @@ if TYPE_CHECKING:
     from .employee import Employee
 
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import DateTime, String, Text, Boolean, func, ForeignKey
+from sqlalchemy import DateTime, String, Text, Boolean, func, ForeignKey, Integer
 
 
 class Token(Base):
     __tablename__ = "tokens"
 
     # Token information
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     token: Mapped[str] = mapped_column(String, unique=True, index=True)
 
     created: Mapped[datetime] = mapped_column(

@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 class Schedule(Base):
     __tablename__ = "schedules"
 
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     date: Mapped[date_type] = mapped_column(Date, nullable=False)
     shift_type: Mapped[ShiftType | None] = mapped_column(Enum(ShiftType), nullable=True)
     custom_shift: Mapped[str | None] = mapped_column(String(50), nullable=True)

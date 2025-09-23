@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 class Employee(Base):
     __tablename__ = "employee"
 
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     first_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     last_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     phone: Mapped[Optional[str]] = mapped_column(String(15), unique=True, nullable=True)
