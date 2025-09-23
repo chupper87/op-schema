@@ -6,6 +6,9 @@ from datetime import date as date_type
 from ..dependencies import require_admin
 from ..core.logger import logger
 from ..models.auth import User
+from ..schemas.relations import ScheduleMeasureCreateSchema, ScheduleMeasureOutSchema
+from ..schemas.customer import CustomerOutSchema
+from ..schemas.employee import EmployeeOutSchema
 from ..schemas.schedule import (
     ScheduleOutSchema,
     ScheduleBaseSchema,
@@ -20,6 +23,15 @@ from ..crud.schedule import (
     update_schedule,
     delete_schedule,
     duplicate_schedule,
+    assign_employee_to_schedule,
+    remove_employee_from_schedule,
+    get_schedule_employees,
+    assign_customer_to_schedule,
+    remove_customer_from_schedule,
+    get_schedule_customers,
+    assign_measure_to_schedule,
+    remove_measure_from_schedule,
+    get_schedule_measures,
 )
 
 router = APIRouter(tags=["schedules"], prefix="/schedules")
@@ -99,7 +111,7 @@ async def update_schedule_endpoint(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin),
 ):
-    schedule = update_schedule(db, schedule_id, data.model_dump(exclude_unset=True))
+    schedule = update_schedule(db, schedule_id, data)
     if not schedule:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -143,3 +155,145 @@ async def duplicate_schedule_endpoint(
         return new_schedule
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.post("/{schedule_id}/employees", status_code=status.HTTP_201_CREATED)
+async def assign_employee_to_schedule_endpoint(
+    schedule_id: int,
+    employee_id: int = Query(..., description="Employee ID to assign"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    try:
+        assign_employee_to_schedule(db, schedule_id, employee_id)
+        logger.info(
+            f"Admin {current_user.username} assigned employee {employee_id} to schedule {schedule_id}"
+        )
+        return {"message": "Employee assigned to schedule successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.delete(
+    "/{schedule_id}/employees/{employee_id}", status_code=status.HTTP_204_NO_CONTENT
+)
+async def remove_employee_from_schedule_endpoint(
+    schedule_id: int,
+    employee_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    success = remove_employee_from_schedule(db, schedule_id, employee_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Employee {employee_id} not found on schedule {schedule_id}",
+        )
+    logger.info(
+        f"Admin {current_user.username} removed employee {employee_id} from schedule {schedule_id}"
+    )
+
+
+@router.get("/{schedule_id}/employees", response_model=list[EmployeeOutSchema])
+async def get_schedule_employees_endpoint(
+    schedule_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    employees = get_schedule_employees(db, schedule_id)
+    return employees
+
+
+@router.post("/{schedule_id}/customers", status_code=status.HTTP_201_CREATED)
+async def assign_customer_to_schedule_endpoint(
+    schedule_id: int,
+    customer_id: int = Query(..., description="Customer ID to assign"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    try:
+        assign_customer_to_schedule(db, schedule_id, customer_id)
+        logger.info(
+            f"Admin {current_user.username} assigned customer {customer_id} to schedule {schedule_id}"
+        )
+        return {"message": "Customer assigned to schedule successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.delete(
+    "/{schedule_id}/customers/{customer_id}", status_code=status.HTTP_204_NO_CONTENT
+)
+async def remove_customer_from_schedule_endpoint(
+    schedule_id: int,
+    customer_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    success = remove_customer_from_schedule(db, schedule_id, customer_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Customer {customer_id} not found on schedule {schedule_id}",
+        )
+    logger.info(
+        f"Admin {current_user.username} removed customer {customer_id} from schedule {schedule_id}"
+    )
+
+
+@router.get("/{schedule_id}/customers", response_model=list[CustomerOutSchema])
+async def get_schedule_customers_endpoint(
+    schedule_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    customers = get_schedule_customers(db, schedule_id)
+    return customers
+
+
+# Measure assignment endpoints
+@router.post("/{schedule_id}/measures", status_code=status.HTTP_201_CREATED)
+async def assign_measure_to_schedule_endpoint(
+    schedule_id: int,
+    data: ScheduleMeasureCreateSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    try:
+        assign_measure_to_schedule(db, schedule_id, data)
+        logger.info(
+            f"Admin {current_user.username} assigned measure {data.measure_id} to schedule {schedule_id}"
+        )
+        return {"message": "Measure assigned to schedule successfully"}
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+@router.delete(
+    "/{schedule_id}/measures/{measure_id}", status_code=status.HTTP_204_NO_CONTENT
+)
+async def remove_measure_from_schedule_endpoint(
+    schedule_id: int,
+    measure_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    success = remove_measure_from_schedule(db, schedule_id, measure_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Measure {measure_id} not found on schedule {schedule_id}",
+        )
+    logger.info(
+        f"Admin {current_user.username} removed measure {measure_id} from schedule {schedule_id}"
+    )
+
+
+@router.get("/{schedule_id}/measures", response_model=list[ScheduleMeasureOutSchema])
+async def get_schedule_measures_endpoint(
+    schedule_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    measures = get_schedule_measures(db, schedule_id)
+    return measures

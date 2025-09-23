@@ -26,3 +26,9 @@ class EmployeeNotFoundError(Exception):
     def __init__(self, employee_id: int):
         self.employee_id = employee_id
         super().__init__(f"Employee with ID {employee_id} not found")
+
+
+class ScheduleNotFoundError(Exception):
+    def __init__(self, schedule_id: int):
+        self.schedule_id = schedule_id
+        super().__init__(f"Schedule with ID {schedule_id} not found")

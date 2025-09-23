@@ -4,6 +4,7 @@ from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from pydantic import EmailStr
+from datetime import date
 from ..core.exceptions import UserNotFoundError
 from ..core.logger import logger
 from ..core.enums import RoleType
@@ -279,3 +280,33 @@ def search_users(
         stmt = stmt.where(User.is_active == is_active)
 
     return list(db.execute(stmt).scalars().all())
+
+
+def get_employees_by_role(db: Session, role: RoleType) -> list[User]:
+    """Get all active employees with the specified role"""
+    return search_users(db, role=role, is_active=True)
+
+
+def get_available_employees(db: Session, date: date) -> list[User]:
+    """Get employees who are not on absence for the given date"""
+    from ..models.absence import Absence
+
+    # Subquery to find employee IDs who are on absence on the given date
+    absent_employee_ids = (
+        select(Absence.employee_id)
+        .where(Absence.start_date <= date, Absence.end_date >= date)
+        .subquery()
+    )
+
+    # Get active employees who are not in the absent list
+    available_employees = (
+        db.execute(
+            select(User)
+            .join(User.employee)
+            .where(User.is_active, ~User.employee.id.in_(select(absent_employee_ids)))
+        )
+        .scalars()
+        .all()
+    )
+
+    return list(available_employees)

@@ -49,6 +49,13 @@ class ScheduleMeasureOutSchema(ScheduleMeasureBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ScheduleMeasureCreateSchema(BaseModel):
+    measure_id: int
+    time_of_day: str | None = None
+    custom_duration: int | None = None
+    notes: str | None = None
+
+
 class ScheduleCustomerBaseSchema(BaseModel):
     schedule_id: int
     customer_id: int
