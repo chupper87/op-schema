@@ -1,6 +1,6 @@
 from ..core.base import Base
 from ..core.enums import AbsenceType
-from sqlalchemy import ForeignKey, DateTime, Date, String, Integer, func
+from sqlalchemy import ForeignKey, DateTime, Date, String, Integer, func, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime, date
 from typing import TYPE_CHECKING
@@ -22,6 +22,17 @@ class Absence(Base):
 
     created: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
+    )
+
+    updated: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
+    )
+
+    __table_args__ = (
+        Index("ix_absence_employee_id", "employee_id"),
+        Index("ix_absence_start_date", "start_date"),
+        Index("ix_absence_end_date", "end_date"),
+        Index("ix_absence_employee_dates", "employee_id", "start_date", "end_date"),
     )
 
     employee: Mapped["Employee"] = relationship(back_populates="absences")

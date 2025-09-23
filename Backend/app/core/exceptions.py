@@ -20,3 +20,9 @@ class CareVisitNotFoundError(Exception):
     def __init__(self, carevisit_id: int):
         self.carevisit_id = carevisit_id
         super().__init__(f"Carevisit with ID {carevisit_id} not found")
+
+
+class EmployeeNotFoundError(Exception):
+    def __init__(self, employee_id: int):
+        self.employee_id = employee_id
+        super().__init__(f"Employee with ID {employee_id} not found")
