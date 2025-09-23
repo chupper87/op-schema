@@ -14,6 +14,9 @@ from ..crud.care_visit import (
     get_care_visit_by_id,
     delete_care_visit,
     update_care_visit,
+    get_upcoming_visits,
+    get_completed_visits,
+    get_overdue_visits,
 )
 from ..schemas.care_visit import (
     CareVisitBaseSchema,
@@ -150,3 +153,90 @@ async def update_care_visit_endpoint(
     logger.info(f"Admin {current_user.username} updated carevisit: {care_visit.id}")
 
     return care_visit
+
+
+@router.get(
+    "/upcoming/",
+    response_model=list[CareVisitOutSchema],
+    status_code=status.HTTP_200_OK,
+)
+async def list_upcoming_care_visits(
+    customer_id: Optional[int] = Query(None, description="Filter by customer"),
+    schedule_id: Optional[int] = Query(None, description="Filter by schedule"),
+    days_ahead: int = Query(7, ge=1, le=90, description="Number of days ahead to look"),
+    skip: int = Query(0, ge=0, description="Number of records to skip for pagination"),
+    limit: int = Query(100, le=1000, description="Max number of records to return"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    care_visits = get_upcoming_visits(
+        db=db,
+        customer_id=customer_id,
+        schedule_id=schedule_id,
+        days_ahead=days_ahead,  # Pass the parameter through
+        skip=skip,
+        limit=limit,
+    )
+    logger.info(
+        f"Admin {current_user.username} listed {len(care_visits)} upcoming care visits "
+        f"({days_ahead} days ahead, skip={skip}, limit={limit})"
+    )
+    return care_visits
+
+
+@router.get(
+    "/completed/",
+    response_model=list[CareVisitOutSchema],
+    status_code=status.HTTP_200_OK,
+)
+async def list_completed_care_visits(
+    customer_id: Optional[int] = Query(None, description="Filter by customer"),
+    schedule_id: Optional[int] = Query(None, description="Filter by schedule"),
+    days_back: int = Query(30, ge=1, le=365, description="Number of days back to look"),
+    skip: int = Query(0, ge=0, description="Number of records to skip for pagination"),
+    limit: int = Query(100, le=1000, description="Max number of records to return"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    care_visits = get_completed_visits(
+        db=db,
+        customer_id=customer_id,
+        schedule_id=schedule_id,
+        days_back=days_back,
+        skip=skip,
+        limit=limit,
+    )
+
+    logger.info(
+        f"Admin {current_user.username} listed {len(care_visits)} completed care visits "
+        f"({days_back} days back, skip={skip}, limit={limit})"
+    )
+
+    return care_visits
+
+
+@router.get(
+    "/overdue/", response_model=list[CareVisitOutSchema], status_code=status.HTTP_200_OK
+)
+async def list_overdue_care_visits(
+    customer_id: Optional[int] = Query(None, description="Filter by customer"),
+    schedule_id: Optional[int] = Query(None, description="Filter by schedule"),
+    skip: int = Query(0, ge=0, description="Number of records to skip for pagination"),
+    limit: int = Query(100, le=1000, description="Max number of records to return"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    care_visits = get_overdue_visits(
+        db=db,
+        customer_id=customer_id,
+        schedule_id=schedule_id,
+        skip=skip,
+        limit=limit,
+    )
+
+    logger.info(
+        f"Admin {current_user.username} listed {len(care_visits)} overdue care visits "
+        f"(skip={skip}, limit={limit})"
+    )
+
+    return care_visits

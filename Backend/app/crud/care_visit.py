@@ -123,7 +123,7 @@ def get_upcoming_visits(
         db=db,
         start_date=today,
         end_date=future_date,
-        status=VisitStatus.PLANNED,  # Assuming you have this enum value
+        status=VisitStatus.PLANNED,
         customer_id=customer_id,
         schedule_id=schedule_id,
         skip=skip,
