@@ -1,36 +1,33 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-blue-400">
+        <div className="login-container">
+
+          <h2>Login</h2><div />
+          <input type="text" placeholder="Username" className="login-input" /><div />
+          <input type="password" placeholder="Password" className="login-input" /><div />
+          <button className="login-button" onClick={() => setIsLoggedIn(true)}>Login</button>
+        </div>
+      </div>
+    )
+
+  } else {
+    return (
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h1 className=''>Hello!</h1>
       </div>
-      <h1 className="text-4xl font-bold text-blue-500 mb-8">Timepiece</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+    )
+  }
 
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
 }
 
 export default App
