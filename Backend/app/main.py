@@ -1,6 +1,7 @@
 import uvicorn
 from .core.db_setup import init_db
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .core.logger import logger
 from .routers import auth, user, customer, schedule, measure, care_visit, absence
@@ -14,6 +15,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Timepiece", lifespan=lifespan)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth.router)
 app.include_router(user.router)
