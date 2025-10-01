@@ -1,6 +1,6 @@
 from .settings import settings
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 from .logger import logger
 
 import Backend.app.models.auth
@@ -13,6 +13,9 @@ import Backend.app.models.schedule  # noqa: F401
 
 
 engine = create_engine(f"{settings.DB_URL}", echo=settings.DEBUG)
+
+# SessionLocal for scripts and standalone usage
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def init_db():
