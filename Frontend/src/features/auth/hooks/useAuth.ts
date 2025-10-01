@@ -13,7 +13,7 @@ export function useAuth() {
         onSuccess: (data) => {
             console.log(data);
             localStorage.setItem('token', data.access_token);
-            navigate('/');
+            navigate('/home');
         },
         onError: (error) => {
             alert("Login Failed");

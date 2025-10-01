@@ -1,3 +1,12 @@
+import Header from "../components/Header";
+
 export default function HomePage() {
-  return <h1 className='mb-44'>Hi</h1>
+  return (
+    
+      <div className="bg-blue-300 flex flex-col h-screen">
+        <Header />
+      </div>
+
+      
+  )
 }
