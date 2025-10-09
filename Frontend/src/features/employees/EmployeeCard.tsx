@@ -7,13 +7,16 @@ interface EmployeeCardProps {
     weeklyHours: number;
     isSummerWorker: boolean;
     role: string;
+    isActive: boolean;
 }
 
-export default function EmployeeCard({ id, name, phone, employmentType, employmentDegree, weeklyHours, isSummerWorker, role }: EmployeeCardProps) {
+export default function EmployeeCard({ id, name, phone, employmentType, employmentDegree, weeklyHours, isSummerWorker, role, isActive }: EmployeeCardProps) {
     return (
-        <div key={id} className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+        <div key={id} className={`rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow cursor-pointer ${
+            isActive ? 'bg-white' : 'bg-gray-200 opacity-60'
+        }`}>
             <h3 className="text-lg font-bold text-indigo-900">
-                {name} 
+                {name}
                 {isSummerWorker && (
                     <span className="text-emerald-500 text-xs ml-2">- Sommararbetare</span>
                 )}
