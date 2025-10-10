@@ -18,7 +18,7 @@ export default function EmployeeCard({ id, name, phone, employmentType, employme
             <h3 className="text-lg font-bold text-indigo-900">
                 {name}
                 {isSummerWorker && (
-                    <span className="text-emerald-500 text-xs ml-2">- Sommararbetare</span>
+                    <span className="text-emerald-500 text-xs ml-2"> Sommararbetare</span>
                 )}
             </h3>
             <p className="text-gray-600 text-sm mt-1">{role}</p>
