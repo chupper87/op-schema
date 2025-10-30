@@ -25,7 +25,7 @@ def init_db():
         Base.metadata.create_all(engine)
         logger.info("Database tables created! 👽")
     except Exception as e:
-        print(f"❌ An error occurred initializing the database: {e}")
+        logger.error(f"❌ An error occurred initializing the database: {e}")
 
 
 def get_db():

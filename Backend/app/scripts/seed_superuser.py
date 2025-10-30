@@ -16,9 +16,8 @@ def create_initial_superuser():
     # Check if superuser already exists
     existing = db.query(User).filter(User.is_superuser).first()
     if existing:
-        print(f"Superuser already exists: {existing.username}")
         db.close()
-        return
+        return f"Superuser already exists: {existing.username}"
 
     user = User(
         email="admin@example.com",
