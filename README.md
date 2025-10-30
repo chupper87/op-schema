@@ -1,5 +1,60 @@
 # op-schema
 
+## Quick Start
+
+### Prerequisites
+- Python 3.8+
+- [uv](https://docs.astral.sh/uv/) - Fast Python package installer
+- PostgreSQL
+- Node.js (for frontend, if applicable)
+
+### Backend Setup
+
+1. **Install uv** (if not already installed)
+   ```bash
+   # On macOS and Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # On Windows
+   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
+
+2. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd op-schema
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .example.env .env
+   ```
+   Edit `.env` and configure:
+   - `DB_URL` - Your PostgreSQL connection string
+   - `SECRET_KEY` - Generate a secure random key
+   - `SMTP_*` - Your email server credentials (if using email features)
+
+4. **Install dependencies with uv**
+   ```bash
+   uv sync
+   ```
+
+5. **Run database migrations**
+   ```bash
+   uv run alembic upgrade head
+   ```
+
+6. **Start the backend server**
+   ```bash
+   uv run uvicorn Backend.app.main:app --reload
+   ```
+
+The API will be available at `http://localhost:8000`
+
+### Environment Variables
+
+See `.example.env` for all required configuration options.
+
 
 
 ## Customer lifecycle management

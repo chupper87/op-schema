@@ -31,3 +31,5 @@ logs/
 .env.*.local
 
 .claude
+
+run.bat
