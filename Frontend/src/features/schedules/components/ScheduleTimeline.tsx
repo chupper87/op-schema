@@ -17,7 +17,7 @@ interface ScheduleTimelineProps {
 }
 
 export default function ScheduleTimeline({
-    date,
+    date, // eslint-disable-line @typescript-eslint/no-unused-vars -- TODO: Använd date för att filtrera events eller generera rätt tidsslots
     employees,
     scheduleEvents,
     customers,

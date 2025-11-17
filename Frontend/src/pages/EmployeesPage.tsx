@@ -17,16 +17,16 @@ export default function EmployeesPage() {
         { id: 6, name: "Maria Månsson", email: "maria@example.com", role: "Vårdbiträde", phone: "070-66 66 666", gender: "Kvinna", birthDate: "1992-07-20", employmentType: "Hourly", employmentDegree: 100, weeklyHours: 40, isSummerWorker: true, startDate: "2020-01-01", endDate: "2024-12-31", isActive: false },
     ]);
 
-    const filteredEmployees = showInactive 
-    ? employees 
-    : employees.filter((employee) => employee.isActive);   
+    const filteredEmployees = showInactive
+    ? employees
+    : employees.filter((employee) => employee.isActive);
 
 
 
     return (
         <div className="bg-indigo-100 flex flex-col min-h-screen">
             <Header />
-            
+
             <div className="flex-1 p-6 md:p-8">
                 <div className="max-w-7xl mx-auto">
                     {/* Header med knapp */}
@@ -34,15 +34,15 @@ export default function EmployeesPage() {
                         <h1 className="text-3xl font-bold text-indigo-900">Medarbetare</h1>
                         <div className="flex gap-3 items-center">
                             <label className="flex items-center gap-2 cursor-pointer">
-                                <input 
-                                    type="checkbox" 
+                                <input
+                                    type="checkbox"
                                     checked={showInactive}
                                     onChange={(e) => setShowInactive(e.target.checked)}
                                     className="w-4 h-4 cursor-pointer"
                                 />
                                 <span className="text-gray-700 text-sm">Visa inaktiva</span>
                             </label>
-                            <button 
+                            <button
                                 className="cursor-pointer flex items-center gap-2 bg-indigo-900 text-white px-4 py-2 rounded-lg hover:bg-indigo-800 transition-colors"
                             >
                                 <Plus size={20} weight="bold" />
@@ -54,16 +54,16 @@ export default function EmployeesPage() {
                     {/* Medarbetarkort */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {filteredEmployees.map((employee) => (
-                            <EmployeeCard 
-                                key={employee.id} 
-                                id={employee.id} 
-                                name={employee.name} 
-                                phone={employee.phone} 
+                            <EmployeeCard
+                                key={employee.id}
+                                id={employee.id}
+                                name={employee.name}
+                                phone={employee.phone}
                                 employmentType={employee.employmentType}
-                                employmentDegree={employee.employmentDegree} 
-                                weeklyHours={employee.weeklyHours} 
-                                isSummerWorker={employee.isSummerWorker} 
-                                role={employee.role} 
+                                employmentDegree={employee.employmentDegree}
+                                weeklyHours={employee.weeklyHours}
+                                isSummerWorker={employee.isSummerWorker}
+                                role={employee.role}
                                 isActive={employee.isActive}
                             />
                         ))}
@@ -73,4 +73,3 @@ export default function EmployeesPage() {
         </div>
     );
 }
-

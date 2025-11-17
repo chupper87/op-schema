@@ -53,7 +53,7 @@ export default function MeasuresPage() {
                                 isActive={true}
                             />
                         ))}
-                            
+
                     </div>
                 </div>
             </div>
@@ -61,4 +61,3 @@ export default function MeasuresPage() {
         </div>
     );
 }
-

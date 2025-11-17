@@ -91,5 +91,5 @@ The system provides two different ways to “remove” a customer:
 
 - **Default action**: use `deactivate`.
 - **Exception**: use `delete` only when the data is invalid and must be permanently removed.
-- Frontend should always request explicit confirmation before invoking `delete`.  
+- Frontend should always request explicit confirmation before invoking `delete`.
   Example: _“Are you sure you want to permanently delete this customer?”_

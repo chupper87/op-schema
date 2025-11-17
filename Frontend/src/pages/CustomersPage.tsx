@@ -3,9 +3,10 @@ import Header from "../components/Header";
 import { Plus } from "phosphor-react";
 
 export default function CustomersPage() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO: Använd showForm för att visa/dölja formulär
     const [showForm, setShowForm] = useState(false);
-    
-    // Mockdata för att börja med
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO: Implementera CRUD-funktionalitet för att uppdatera customers
     const [customers, setCustomers] = useState([
         { id: 1, name: "Anna Andersson", personalNumber: "19850615-1234", address: "Storgatan 1", phone: "070-1234567" },
         { id: 2, name: "Bengt Berg", personalNumber: "19720320-5678", address: "Lillgatan 5", phone: "070-9876543" },
@@ -14,13 +15,13 @@ export default function CustomersPage() {
     return (
         <div className="bg-indigo-100 flex flex-col min-h-screen">
             <Header />
-            
+
             <div className="flex-1 p-6 md:p-8">
                 <div className="max-w-7xl mx-auto">
                     {/* Header med knapp */}
                     <div className="flex justify-between items-center mb-6">
                         <h1 className="text-3xl font-bold text-indigo-900">Vårdtagare</h1>
-                        <button 
+                        <button
                             onClick={() => setShowForm(true)}
                             className=" cursor-pointer flex items-center gap-2 bg-indigo-900 text-white px-4 py-2 rounded-lg hover:bg-indigo-800 transition-colors"
                         >
@@ -91,4 +92,3 @@ export default function CustomersPage() {
         </div>
     );
 }
-

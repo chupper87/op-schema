@@ -22,26 +22,26 @@ export default function LoginForm() {
                 <h1 className="m-3.5 text-indigo-900 font-extrabold text-5xl dark:text-indigo">Timepiece</h1>
                 <img  className="h-15 w-15 justify-center items-center mb-5 pt-2" src={waveImg} alt="wave" />
             </div>
-            
+
             <form onSubmit={handleSubmit}>
                 <label htmlFor="username" className="block mb-2 text-sm font-bold text-indigo-900 dark:text-indigo pt-5">Username</label>
-                <input 
-                    type="username" 
+                <input
+                    type="username"
                     id="username"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-white border-1 border-indigo-900 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-white dark:border-indigo-900 dark:placeholder-gray-400 dark:text-indigo-900 dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                    placeholder="username" 
-                    required 
+                    className="bg-white border-1 border-indigo-900 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-white dark:border-indigo-900 dark:placeholder-gray-400 dark:text-indigo-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="username"
+                    required
                 />
                 <label htmlFor="password" className="block text-sm font-bold text-indigo-900 dark:text-indigo pt-1">Password</label>
-                <input 
-                    type="password" 
+                <input
+                    type="password"
                     id="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-white border-1 border-indigo-900 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-white dark:border-indigo-900 dark:placeholder-gray-400 dark:text-indigo-900 dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                    required 
+                    className="bg-white border-1 border-indigo-900 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-white dark:border-indigo-900 dark:placeholder-gray-400 dark:text-indigo-900 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    required
                 />
                 <a href="#" className="text-xs text-indigo-900 dark:text-indigo mt-2 block hover:text-indigo-600">Forgot password?</a>
                 <div className="flex justify-center mt-4">
@@ -58,6 +58,3 @@ export default function LoginForm() {
         </div>
     );
 }
-
-
-

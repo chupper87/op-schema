@@ -215,6 +215,51 @@ export default function SchedulePage() {
 
     console.log("Duration:", duration, "minuter");
     console.log("Ny tid:", newStartTime, "-", newEndTime);
+
+    // Handle different scenarios
+    if (draggedData.type === "UNASSIGNED_VISIT") {
+      console.log("Skapar nytt event från unassigned visit");
+
+      const newEvent: ScheduleEvent = {
+        id: `event-${Date.now()}`,
+        employeeId: dropData.employeeId,
+        customerId: draggedData.customerId,
+        measureId: draggedData.measureId,
+        date: currentDate.toISOString().split("T")[0],
+        startTime: newStartTime,
+        endTime: newEndTime,
+        status: "scheduled",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      console.log("Nytt event skapat:", newEvent);
+
+      setScheduleEvents((prev) => [...prev, newEvent]);
+
+      setUnassignedVisits((prev) =>
+        prev.filter((visit) => visit.id !== draggedData.visitId)
+      );
+    } else {
+      console.log("Flyttar befintligt event");
+
+      // Update existing event
+      setScheduleEvents((prev) =>
+        prev.map((event) => {
+          if (event.id === draggedData.eventId) {
+            //This is the event we are dragging
+            return {
+              ...event,
+              employeeId: dropData.employeeId,
+              startTime: newStartTime,
+              endTime: newEndTime,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+          return event;
+        })
+      );
+    }
   };
 
   return (

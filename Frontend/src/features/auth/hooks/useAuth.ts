@@ -20,8 +20,8 @@ export function useAuth() {
             console.error(error);
         }
     });
-    
-    return { 
+
+    return {
         login: loginMutation.mutate,
         isLoading: loginMutation.isPending,
         error: loginMutation.error

@@ -1,8 +1,32 @@
 repos:
-  - repo: https://github.com/astral-sh//ruff-pre-commit
+  # Allmänna hooks för alla filer
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+        exclude: 'tsconfig.*\.json$'  # TypeScript config använder JSONC (JSON med kommentarer)
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: mixed-line-ending
+
+  # Python - Ruff för linting och formatting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.7.1
     hooks:
       - id: ruff
-        args: [ --fix]
+        args: [--fix]
       - id: ruff-format
 
+  # TypeScript/JavaScript - ESLint
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint
+        entry: bash -c 'cd Frontend && npm run lint'
+        language: system
+        files: 'Frontend/.*\.(js|ts|tsx|jsx)$'
+        pass_filenames: false

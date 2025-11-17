@@ -10,7 +10,7 @@ interface MeasureCardProps {
 
 export default function MeasureCard({ name, defaultDuration, text, timeOfDay, timeFlexibility, isActive }: MeasureCardProps) {
     return (
-        <div className={`rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow cursor-pointer 
+        <div className={`rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow cursor-pointer
             ${
             isActive ? 'bg-white' : 'bg-gray-200 opacity-60'
         }`}>
