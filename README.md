@@ -1,67 +1,168 @@
 # op-schema
 
+A full-stack customer lifecycle management application with a **FastAPI** backend (managed by **uv**) and a **React + TypeScript + Tailwind CSS** frontend.
+
 ## Quick Start
 
+Run both backend and frontend together:
+
+```bash
 ./run.bat
+```
 
-### Prerequisites
+This will start:
+- **Backend** at `http://localhost:8000`
+- **Frontend** at `http://localhost:5173`
 
-- Python 3.8+
-- [uv](https://docs.astral.sh/uv/) - Fast Python package installer
-- PostgreSQL
-- Node.js (for frontend, if applicable)
+---
 
-### Backend Setup
+## Prerequisites
 
-1. **Install uv** (if not already installed)
+Before you begin, ensure you have the following installed:
 
-   ```bash
-   # On macOS and Linux
-   curl -LsSf https://astral.sh/uv/install.sh | sh
+- **Python 3.8+**
+- **[uv](https://docs.astral.sh/uv/)** - Fast Python package installer and manager (replaces pip/venv)
+- **PostgreSQL** - Database server
+- **Node.js 18+** and **npm** - For the frontend
 
-   # On Windows
-   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-   ```
+---
 
-2. **Clone the repository**
+## Installation
 
-   ```bash
-   git clone <repository-url>
-   cd op-schema
-   ```
+### 1. Install uv (if not already installed)
 
-3. **Set up environment variables**
+This project uses **uv** for Python dependency management instead of pip/virtualenv.
 
-   ```bash
-   cp .example.env .env
-   ```
+```bash
+# On macOS and Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-   Edit `.env` and configure:
+# On Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
 
-   - `DB_URL` - Your PostgreSQL connection string
-   - `SECRET_KEY` - Generate a secure random key
-   - `SMTP_*` - Your email server credentials (if using email features)
+### 2. Clone the repository
 
-4. **Install dependencies with uv**
+```bash
+git clone <repository-url>
+cd op-schema
+```
 
-   ```bash
-   uv sync
-   ```
+### 3. Set up environment variables
 
-5. **Run database migrations**
+```bash
+cp .example.env .env
+```
 
-   ```bash
-   uv run alembic upgrade head
-   ```
+Edit `.env` and configure:
 
-6. **Start the backend server**
-   ```bash
-   uv run uvicorn Backend.app.main:app --reload
-   ```
+- `DB_URL` - Your PostgreSQL connection string (e.g., `postgresql://user:password@localhost:5432/dbname`)
+- `SECRET_KEY` - Generate a secure random key
+- `SMTP_*` - Your email server credentials (if using email features)
 
-The API will be available at `http://localhost:8000`
+---
 
-### Environment Variables
+## Backend Setup
+
+### 1. Install Python dependencies with uv
+
+```bash
+uv sync
+```
+
+This command will:
+- Create a virtual environment (`.venv`)
+- Install all dependencies from `pyproject.toml`
+- Generate a lock file (`uv.lock`)
+
+### 2. Run database migrations
+
+```bash
+uv run alembic upgrade head
+```
+
+### 3. Start the backend server
+
+```bash
+uv run uvicorn Backend.app.main:app --reload
+```
+
+The API will be available at **`http://localhost:8000`**
+
+**API Documentation:**
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
+---
+
+## Frontend Setup
+
+### 1. Navigate to the Frontend directory
+
+```bash
+cd Frontend
+```
+
+### 2. Install Node.js dependencies
+
+```bash
+npm install
+```
+
+### 3. Start the development server
+
+```bash
+npm run dev
+```
+
+The frontend will be available at **`http://localhost:5173`**
+
+### Frontend Scripts
+
+```bash
+npm run dev      # Start development server
+npm run build    # Build for production
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
+```
+
+---
+
+## Project Structure
+
+```
+op-schema/
+├── Backend/           # FastAPI backend application
+├── Frontend/          # React + Vite frontend application
+├── alembic/           # Database migration files
+├── .env               # Environment variables (create from .example.env)
+├── pyproject.toml     # Python dependencies (managed by uv)
+├── uv.lock            # Lock file for Python dependencies
+└── run.bat            # Start both backend and frontend
+```
+
+---
+
+## Technologies Used
+
+### Backend
+- **FastAPI** - Modern Python web framework
+- **SQLAlchemy** - ORM for database operations
+- **Alembic** - Database migrations
+- **PostgreSQL** - Database
+- **uv** - Python package manager
+
+### Frontend
+- **React 19** - UI library
+- **TypeScript** - Type-safe JavaScript
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **TanStack Query** - Data fetching and caching
+- **React Router** - Client-side routing
+
+---
+
+## Environment Variables
 
 See `.example.env` for all required configuration options.
 
