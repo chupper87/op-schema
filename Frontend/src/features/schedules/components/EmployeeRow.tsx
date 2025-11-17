@@ -7,6 +7,7 @@ import type {
     Measure,
     TimeSlot,
 } from "../types/schedule.types";
+import { useDroppable } from "@dnd-kit/core";
 
 interface EmployeeRowProps {
     employee: Employee;
@@ -14,6 +15,32 @@ interface EmployeeRowProps {
     timeSlots: TimeSlot[];
     customers: Customer[];
     measures: Measure[];
+}
+
+interface TimeSlotDropZoneProps {
+    employeeId: number;
+    timeSlot: TimeSlot;
+}
+
+function TimeSlotDropZone({ employeeId, timeSlot }: TimeSlotDropZoneProps) {
+    const { isOver, setNodeRef } = useDroppable({
+        id: `drop-${employeeId}-${timeSlot.display}`,
+        data: {
+            employeeId,
+            timeSlot: timeSlot.display,
+        },
+    });
+
+    return (
+        <div
+            ref={setNodeRef}
+            className={`
+                w-24 flex-shrink-0 border-r border-gray-100 h-full
+                ${timeSlot.minute === 0 ? "border-l border-gray-200" : ""}
+                ${isOver ? "bg-blue-100" : ""}
+            `}
+        />
+    );
 }
 
 export default function EmployeeRow({
@@ -73,13 +100,11 @@ export default function EmployeeRow({
                 <div className="flex" style={{ minWidth: "max-content", height: "100%" }}>
                     {/* Time Slot Grid */}
                     {timeSlots.map((slot) => (
-                        <div
-                            key={`${employee.id}-${slot.display}`}
-                            className={`
-                                w-24 flex-shrink-0 border-r border-gray-100 h-full
-                                ${slot.minute === 0 ? "border-l border-gray-200" : ""}
-                            `}
-                        />
+                        <TimeSlotDropZone
+                        key={`${employee.id}-${slot.display}`}
+                        employeeId={employee.id}
+                        timeSlot={slot}
+                    />
                     ))}
 
                     {/* Positioned Events (Absolute) */}
