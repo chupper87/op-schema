@@ -184,7 +184,37 @@ export default function SchedulePage() {
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
-    console.log("Drag ended:", event);
+    const { active, over } = event;
+    if (!over) return;
+
+    console.log("Drog från:", active.data.current);
+    console.log("Släpptes på:", over.data.current);
+
+    const draggedData = active.data.current;
+    const dropData = over.data.current;
+
+    if (!draggedData || !dropData) return;
+
+    let duration: number;
+    if (draggedData.type === "UNASSIGNED_VISIT") {
+      duration = draggedData.duration;
+    } else {
+      const [startHour, startMinute] = draggedData.startTime
+        .split(":")
+        .map(Number);
+      const [endHour, endMinute] = draggedData.endTime.split(":").map(Number);
+      duration = endHour * 60 + endMinute - (startHour * 60 + startMinute);
+    }
+
+    const newStartTime = dropData.timeSlot;
+    const [startHour, startMinute] = newStartTime.split(":").map(Number);
+    const endTotalMinutes = startHour * 60 + startMinute + duration;
+    const endHour = Math.floor(endTotalMinutes / 60);
+    const endMinute = endTotalMinutes % 60;
+    const newEndTime = `${String(endHour).padStart(2, "0")}:${String(endMinute).padStart(2, "0")}`;
+
+    console.log("Duration:", duration, "minuter");
+    console.log("Ny tid:", newStartTime, "-", newEndTime);
   };
 
   return (
