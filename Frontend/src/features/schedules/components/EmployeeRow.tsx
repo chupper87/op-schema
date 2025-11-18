@@ -69,7 +69,7 @@ export default function EmployeeRow({
   return (
     <div className="flex border-b border-gray-100 transition-colors hover:bg-gray-50">
       {/* Employee Name - Sticky */}
-      <div className="sticky left-0 z-5 w-40 flex-shrink-0 border-r border-gray-200 bg-white p-3">
+      <div className="sticky left-0 z-10 w-40 flex-shrink-0 border-r border-gray-200 bg-white p-3">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200">
             <span className="text-xs font-bold text-indigo-900">{employee.name.charAt(0)}</span>
@@ -81,12 +81,9 @@ export default function EmployeeRow({
         </div>
       </div>
 
-      {/* Time Grid - Scrollable */}
-      <div
-        className="relative flex-1 overflow-x-auto overflow-y-hidden"
-        style={{ minHeight: '90px' }}
-      >
-        <div className="flex" style={{ minWidth: 'max-content', height: '100%' }}>
+      {/* Time Grid - Synchronized with header scroll */}
+      <div className="relative overflow-y-hidden" style={{ minHeight: '90px' }}>
+        <div className="flex" style={{ height: '100%' }}>
           {/* Time Slot Grid */}
           {timeSlots.map((slot) => (
             <TimeSlotDropZone
