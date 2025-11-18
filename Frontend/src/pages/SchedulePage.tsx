@@ -195,6 +195,38 @@ export default function SchedulePage() {
 
     if (!draggedData || !dropData) return;
 
+    // Check if dropping back to unassigned panel
+    if (
+      dropData.type === "UNASSIGNED_PANEL" &&
+      draggedData.type === "SCHEDULE_EVENT"
+    ) {
+      console.log("Flyttar tillbaka till unassigned");
+
+      const unassignedVisit: UnassignedVisit = {
+        id: `unassigned-${Date.now()}`,
+        customerId: draggedData.customerId,
+        measureId: draggedData.measureId,
+        priority: "medium",
+        notes: "Flyttad tillbaka från schema",
+      };
+
+      // Add to unassigned visits
+      setUnassignedVisits((prev) => [...prev, unassignedVisit]);
+
+      // Remove from schedule events
+      setScheduleEvents((prev) =>
+        prev.filter((e) => e.id !== draggedData.eventId)
+      );
+
+      return;
+    }
+
+    // Only proceed if we have a timeSlot (dropping on timeline)
+    if (!dropData.timeSlot) {
+      console.log("Ingen timeSlot - avbryter");
+      return;
+    }
+
     let duration: number;
     if (draggedData.type === "UNASSIGNED_VISIT") {
       duration = draggedData.duration;
