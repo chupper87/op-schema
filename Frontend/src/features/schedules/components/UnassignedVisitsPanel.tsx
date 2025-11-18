@@ -1,12 +1,8 @@
-import { useState } from "react";
-import { Funnel, ClockCounterClockwise } from "phosphor-react";
-import UnassignedVisitCard from "./UnassignedVisitCard";
-import type {
-  UnassignedVisit,
-  Customer,
-  Measure,
-} from "../types/schedule.types";
-import { useDroppable } from "@dnd-kit/core";
+import { useState } from 'react';
+import { Funnel, ClockCounterClockwise } from 'phosphor-react';
+import UnassignedVisitCard from './UnassignedVisitCard';
+import type { UnassignedVisit, Customer, Measure } from '../types/schedule.types';
+import { useDroppable } from '@dnd-kit/core';
 
 interface UnassignedVisitsPanelProps {
   visits: UnassignedVisit[];
@@ -19,11 +15,11 @@ export default function UnassignedVisitsPanel({
   customers,
   measures,
 }: UnassignedVisitsPanelProps) {
-  const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
   // Filter visits by priority
   const filteredVisits = visits.filter((visit) => {
-    if (priorityFilter === "all") return true;
+    if (priorityFilter === 'all') return true;
     return visit.priority === priorityFilter;
   });
 
@@ -41,29 +37,20 @@ export default function UnassignedVisitsPanel({
   const { isOver, setNodeRef } = useDroppable({
     id: `unassigned-panel`,
     data: {
-      type: "UNASSIGNED_PANEL",
+      type: 'UNASSIGNED_PANEL',
     },
   });
 
   return (
     <div
       ref={setNodeRef}
-      className={`w-80 flex-shrink-0 bg-white rounded-xl shadow-md flex flex-col overflow-hidden
-            transition-colors
-            ${isOver ? `ring-4 ring-indigo-500 bg-indigo-50` : ""}
-            `}
+      className={`flex w-80 flex-shrink-0 flex-col overflow-hidden rounded-xl bg-white shadow-md transition-colors ${isOver ? `bg-indigo-50 ring-4 ring-indigo-500` : ''} `}
     >
       {/* Panel Header */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center gap-2 mb-3">
-          <ClockCounterClockwise
-            size={20}
-            className="text-indigo-900"
-            weight="bold"
-          />
-          <h3 className="text-lg font-bold text-indigo-900">
-            Otilldelade besök
-          </h3>
+      <div className="border-b border-gray-200 p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <ClockCounterClockwise size={20} className="text-indigo-900" weight="bold" />
+          <h3 className="text-lg font-bold text-indigo-900">Otilldelade besök</h3>
         </div>
 
         {/* Priority Filter */}
@@ -72,7 +59,7 @@ export default function UnassignedVisitsPanel({
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm text-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           >
             <option value="all">Alla prioriteter</option>
             <option value="urgent">Akut</option>
@@ -83,16 +70,14 @@ export default function UnassignedVisitsPanel({
         </div>
 
         {/* Visit Count */}
-        <p className="text-xs text-gray-600 mt-2">
-          {sortedVisits.length} besök att tilldela
-        </p>
+        <p className="mt-2 text-xs text-gray-600">{sortedVisits.length} besök att tilldela</p>
       </div>
 
       {/* Visits List - 2 Column Grid */}
       <div className="flex-1 overflow-y-auto p-2">
         {sortedVisits.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-gray-500 text-sm">Inga otilldelade besök</p>
+          <div className="py-8 text-center">
+            <p className="text-sm text-gray-500">Inga otilldelade besök</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-2">

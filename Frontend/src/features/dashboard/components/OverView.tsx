@@ -1,8 +1,3 @@
-
-
-
-const OverView = () => {
-
-}
+const OverView = () => {};
 
 export default OverView;

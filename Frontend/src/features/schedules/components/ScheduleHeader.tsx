@@ -1,5 +1,5 @@
-import { CaretLeft, CaretRight, CalendarBlank } from "phosphor-react";
-import type { ScheduleView } from "../types/schedule.types";
+import { CaretLeft, CaretRight, CalendarBlank } from 'phosphor-react';
+import type { ScheduleView } from '../types/schedule.types';
 
 interface ScheduleHeaderProps {
   view: ScheduleView;
@@ -16,26 +16,26 @@ export default function ScheduleHeader({
 }: ScheduleHeaderProps) {
   const formatDateDisplay = () => {
     const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      ...(view === "day" && { day: "numeric" }),
+      year: 'numeric',
+      month: 'long',
+      ...(view === 'day' && { day: 'numeric' }),
     };
-    return currentDate.toLocaleDateString("sv-SE", options);
+    return currentDate.toLocaleDateString('sv-SE', options);
   };
 
   const navigatePrevious = () => {
     const newDate = new Date(currentDate);
-    if (view === "day") newDate.setDate(newDate.getDate() - 1);
-    if (view === "week") newDate.setDate(newDate.getDate() - 7);
-    if (view === "month") newDate.setMonth(newDate.getMonth() - 1);
+    if (view === 'day') newDate.setDate(newDate.getDate() - 1);
+    if (view === 'week') newDate.setDate(newDate.getDate() - 7);
+    if (view === 'month') newDate.setMonth(newDate.getMonth() - 1);
     onDateChange(newDate);
   };
 
   const navigateNext = () => {
     const newDate = new Date(currentDate);
-    if (view === "day") newDate.setDate(newDate.getDate() + 1);
-    if (view === "week") newDate.setDate(newDate.getDate() + 7);
-    if (view === "month") newDate.setMonth(newDate.getMonth() + 1);
+    if (view === 'day') newDate.setDate(newDate.getDate() + 1);
+    if (view === 'week') newDate.setDate(newDate.getDate() + 7);
+    if (view === 'month') newDate.setMonth(newDate.getMonth() + 1);
     onDateChange(newDate);
   };
 
@@ -44,13 +44,13 @@ export default function ScheduleHeader({
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-md">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+    <div className="rounded-xl bg-white p-4 shadow-md">
+      <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
         {/* Date Navigation */}
         <div className="flex items-center gap-3">
           <button
             onClick={navigatePrevious}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
             aria-label="F�reg�ende"
           >
             <CaretLeft size={24} className="text-indigo-900" weight="bold" />
@@ -58,14 +58,12 @@ export default function ScheduleHeader({
 
           <div className="flex items-center gap-2">
             <CalendarBlank size={24} className="text-indigo-900" />
-            <h2 className="text-xl font-bold text-indigo-900 capitalize">
-              {formatDateDisplay()}
-            </h2>
+            <h2 className="text-xl font-bold text-indigo-900 capitalize">{formatDateDisplay()}</h2>
           </div>
 
           <button
             onClick={navigateNext}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
             aria-label="Nästa"
           >
             <CaretRight size={24} className="text-indigo-900" weight="bold" />
@@ -73,7 +71,7 @@ export default function ScheduleHeader({
 
           <button
             onClick={goToToday}
-            className="ml-2 px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            className="ml-2 rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-200"
           >
             Idag
           </button>
@@ -81,19 +79,19 @@ export default function ScheduleHeader({
 
         {/* View Switcher */}
         <div className="flex gap-2">
-          {(["day", "week", "month"] as ScheduleView[]).map((viewOption) => (
+          {(['day', 'week', 'month'] as ScheduleView[]).map((viewOption) => (
             <button
               key={viewOption}
               onClick={() => onViewChange(viewOption)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 view === viewOption
-                  ? "bg-indigo-900 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? 'bg-indigo-900 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              {viewOption === "day" && "Dag"}
-              {viewOption === "week" && "Vecka"}
-              {viewOption === "month" && "Månad"}
+              {viewOption === 'day' && 'Dag'}
+              {viewOption === 'week' && 'Vecka'}
+              {viewOption === 'month' && 'Månad'}
             </button>
           ))}
         </div>

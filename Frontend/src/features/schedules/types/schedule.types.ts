@@ -1,5 +1,5 @@
 // Core schedule types
-export type ScheduleView = "day" | "week" | "month";
+export type ScheduleView = 'day' | 'week' | 'month';
 
 export interface ScheduleViewState {
   view: ScheduleView;
@@ -15,7 +15,7 @@ export interface ScheduleEvent {
   date: string; // ISO date format "YYYY-MM-DD"
   startTime: string; // "HH:mm" format
   endTime: string; // "HH:mm" format
-  status: "scheduled" | "in-progress" | "completed" | "cancelled";
+  status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -26,8 +26,8 @@ export interface UnassignedVisit {
   customerId: number;
   measureId: number;
   preferredDate?: string;
-  preferredTimeSlot?: "morning" | "afternoon" | "evening";
-  priority: "low" | "medium" | "high" | "urgent";
+  preferredTimeSlot?: 'morning' | 'afternoon' | 'evening';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
   notes?: string;
 }
 
@@ -43,7 +43,7 @@ export interface Employee {
   email: string;
   role: string;
   phone: string;
-  employmentType: "Monthly" | "Hourly";
+  employmentType: 'Monthly' | 'Hourly';
   employmentDegree: number;
   weeklyHours: number;
   isActive: boolean;
@@ -62,5 +62,5 @@ export interface Measure {
   name: string;
   defaultDuration: number; // in minutes
   description: string;
-  timeOfDay: "Morgon" | "Mitt på dagen" | "Kväll";
+  timeOfDay: 'Morgon' | 'Mitt på dagen' | 'Kväll';
 }
