@@ -82,7 +82,10 @@ export default function EmployeeRow({
       </div>
 
       {/* Time Grid - Scrollable */}
-      <div className="relative flex-1 overflow-x-auto" style={{ minHeight: '80px' }}>
+      <div
+        className="relative flex-1 overflow-x-auto overflow-y-hidden"
+        style={{ minHeight: '90px' }}
+      >
         <div className="flex" style={{ minWidth: 'max-content', height: '100%' }}>
           {/* Time Slot Grid */}
           {timeSlots.map((slot) => (
@@ -104,7 +107,7 @@ export default function EmployeeRow({
               return (
                 <div
                   key={event.id}
-                  className="pointer-events-auto absolute top-1"
+                  className="pointer-events-auto absolute top-1 max-h-[104px] min-w-[96px]"
                   style={{
                     left: `${leftPosition}px`,
                     width: `${width}px`,
