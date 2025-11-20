@@ -4,11 +4,17 @@ import Header from '../components/Header';
 import CustomerForm from '../features/customers/CustomerForm';
 import { Plus } from 'phosphor-react';
 
+interface Customer {
+  id: number;
+  name: string;
+  personalNumber: string;
+  address: string;
+  phone: string;
+}
+
 export default function CustomersPage() {
   const [showForm, setShowForm] = useState(false);
-
-  // TODO: Implement customer creation and update logic setCustomers add it again
-  const [customers] = useState([
+  const [customers, setCustomers] = useState<Customer[]>([
     {
       id: 1,
       name: 'Anna Andersson',
@@ -24,6 +30,29 @@ export default function CustomersPage() {
       phone: '070-9876543',
     },
   ]);
+
+  // Handler to add a new customer
+  const handleAddCustomer = (customerData: {
+    name: string;
+    personalNumber: string;
+    address: string;
+    phone: string;
+  }) => {
+    const newId = customers.length > 0 ? Math.max(...customers.map((c) => c.id)) + 1 : 1;
+
+    const newCustomer: Customer = {
+      id: newId,
+      ...customerData,
+    };
+
+    setCustomers([...customers, newCustomer]);
+    setShowForm(false);
+  };
+
+  // Handler to close the form
+  const handleCancelForm = () => {
+    setShowForm(false);
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-indigo-100">
@@ -112,7 +141,7 @@ export default function CustomersPage() {
             <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
               <DialogPanel className="pointer-events-auto w-screen max-w-md transform transition duration-300 ease-out data-[closed]:translate-x-full">
                 <div className="flex h-full flex-col bg-white shadow-xl">
-                  <CustomerForm />
+                  <CustomerForm onSubmit={handleAddCustomer} onCancel={handleCancelForm} />
                 </div>
               </DialogPanel>
             </div>

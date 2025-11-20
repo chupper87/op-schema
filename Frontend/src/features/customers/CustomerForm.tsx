@@ -32,7 +32,7 @@ export default function CustomerForm({ onSubmit, onCancel }: CustomerFormProps) 
         <h2 className="text-xl font-bold text-indigo-900">Lägg till vårdtagare</h2>
         <button
           onClick={onCancel}
-          className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="cursor-pointer rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
           aria-label="Stäng"
         >
           <X size={24} weight="bold" />
@@ -51,6 +51,8 @@ export default function CustomerForm({ onSubmit, onCancel }: CustomerFormProps) 
               type="text"
               id="name"
               required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               placeholder="Anna Andersson"
             />
@@ -68,6 +70,8 @@ export default function CustomerForm({ onSubmit, onCancel }: CustomerFormProps) 
               type="text"
               id="personalNumber"
               required
+              value={formData.personalNumber}
+              onChange={(e) => setFormData({ ...formData, personalNumber: e.target.value })}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               placeholder="ÅÅÅÅMMDD-XXXX"
             />
@@ -82,6 +86,8 @@ export default function CustomerForm({ onSubmit, onCancel }: CustomerFormProps) 
               type="text"
               id="address"
               required
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               placeholder="Storgatan 1"
             />
@@ -96,6 +102,8 @@ export default function CustomerForm({ onSubmit, onCancel }: CustomerFormProps) 
               type="tel"
               id="phone"
               required
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               placeholder="070-1234567"
             />
@@ -106,13 +114,14 @@ export default function CustomerForm({ onSubmit, onCancel }: CustomerFormProps) 
         <div className="flex gap-3 border-t border-gray-200 px-6 py-4">
           <button
             type="button"
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
+            onClick={onCancel}
+            className="flex-1 cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
           >
             Avbryt
           </button>
           <button
             type="submit"
-            className="flex-1 rounded-lg bg-indigo-900 px-4 py-2 text-white transition-colors hover:bg-indigo-800"
+            className="flex-1 cursor-pointer rounded-lg bg-indigo-900 px-4 py-2 text-white transition-colors hover:bg-indigo-800"
           >
             Lägg till
           </button>
