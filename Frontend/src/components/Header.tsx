@@ -17,7 +17,9 @@ export function Header() {
       <div className="flex h-18 w-full flex-row items-center justify-between bg-indigo-900 px-4 md:px-10">
         {/* Vänster: Logo */}
         <div className="flex items-center">
-          <h1 className="text-xl font-bold text-white md:text-2xl lg:text-3xl">Timepiece</h1>
+          <NavLink to="/home">
+            <h1 className="text-xl font-bold text-white md:text-2xl lg:text-3xl">Timepiece</h1>
+          </NavLink>
           <img className="ml-2 h-6 w-6 md:h-8 md:w-8" src={waveImg} alt="wave" />
         </div>
 

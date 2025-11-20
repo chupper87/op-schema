@@ -1,13 +1,14 @@
 import { useState } from 'react';
+import { Dialog, DialogPanel, DialogBackdrop } from '@headlessui/react';
 import Header from '../components/Header';
+import CustomerForm from '../features/customers/CustomerForm';
 import { Plus } from 'phosphor-react';
 
 export default function CustomersPage() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO: Använd showForm för att visa/dölja formulär
   const [showForm, setShowForm] = useState(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO: Implementera CRUD-funktionalitet för att uppdatera customers
-  const [customers, setCustomers] = useState([
+  // TODO: Implement customer creation and update logic setCustomers add it again
+  const [customers] = useState([
     {
       id: 1,
       name: 'Anna Andersson',
@@ -99,6 +100,25 @@ export default function CustomersPage() {
           )}
         </div>
       </div>
+
+      {/* Drawer */}
+      <Dialog open={showForm} onClose={() => {}} className="relative z-50">
+        {/* Backdrop */}
+        <DialogBackdrop className="fixed inset-0 bg-black/20 transition-opacity duration-300 ease-out data-[closed]:opacity-0" />
+
+        {/* Drawer Panel */}
+        <div className="fixed inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+              <DialogPanel className="pointer-events-auto w-screen max-w-md transform transition duration-300 ease-out data-[closed]:translate-x-full">
+                <div className="flex h-full flex-col bg-white shadow-xl">
+                  <CustomerForm />
+                </div>
+              </DialogPanel>
+            </div>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }
