@@ -211,7 +211,7 @@ async def set_customer_status_endpoint(
 
 @router.get(
     "/{customer_id}/measures",
-    response_model=list[CustomerMeasureOutSchema],
+    response_model=list[dict],
     status_code=status.HTTP_200_OK,
 )
 async def get_customer_measures_endpoint(

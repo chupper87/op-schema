@@ -35,6 +35,13 @@ class CustomerMeasureOutSchema(CustomerMeasureBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
 
+class CustomerMeasureWithMeasureSchema(CustomerMeasureOutSchema):
+    measure_name: str
+    measure_default_duration: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ScheduleMeasureBaseSchema(BaseModel):
     schedule_id: int
     measure_id: int
