@@ -1,13 +1,5 @@
 import { TrashIcon } from '@heroicons/react/24/outline';
-
-export interface CustomerMeasure {
-  id: number;
-  measure_id: number;
-  measure_name: string;
-  customer_duration: number;
-  frequency: string;
-  occurrences_per_week: number;
-}
+import { type CustomerMeasure } from '../../api/measureApi';
 
 interface MeasureListProps {
   measures: CustomerMeasure[];
@@ -34,7 +26,8 @@ export default function MeasureList({ measures, onRemove }: MeasureListProps) {
           <div>
             <h4 className="font-bold text-indigo-900">{measure.measure_name}</h4>
             <p className="text-sm text-gray-600">
-              {measure.customer_duration} minuter, {measure.occurrences_per_week} ggr/vecka
+              {measure.customer_duration ?? 0} minuter, {measure.occurrences_per_week ?? 0}{' '}
+              ggr/vecka
             </p>
           </div>
 
@@ -42,9 +35,10 @@ export default function MeasureList({ measures, onRemove }: MeasureListProps) {
             <div className="text-right">
               <p className="font-bold text-indigo-900">
                 {/* Räkna ut månadstotalen: (minuter * antal/vecka * 4.3 veckor) / 60 minuter */}
-                {Math.round(
-                  (measure.customer_duration * measure.occurrences_per_week * 4.3) / 60
-                )}{' '}
+                {(
+                  ((measure.customer_duration ?? 0) * (measure.occurrences_per_week ?? 0) * 4.3) /
+                  60
+                ).toFixed(2)}{' '}
                 h/mån
               </p>
             </div>

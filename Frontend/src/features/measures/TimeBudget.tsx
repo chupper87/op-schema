@@ -27,7 +27,7 @@ export default function TimeBudget({ approvedHours, plannedHours }: TimeBudgetPr
           <span
             className={`text-2xl font-bold ${plannedHours > approvedHours ? 'text-red-600' : 'text-indigo-900'}`}
           >
-            {plannedHours}
+            {plannedHours.toFixed(2)}
           </span>
           <span className="text-gray-500"> / {approvedHours} h/mån</span>
         </div>
@@ -47,6 +47,17 @@ export default function TimeBudget({ approvedHours, plannedHours }: TimeBudgetPr
         <p className="mt-2 text-sm font-medium text-red-600">
           Obs! Du har planerat in mer tid än vad som är beviljat.
         </p>
+      )}
+
+      {/* Infotext om bevakningsgräns från Ramtid */}
+      {plannedHours > approvedHours && (
+        <div className="mt-3 rounded-lg bg-blue-50 p-3">
+          <p className="text-xs text-blue-700">
+            <strong>📋 Bevakningsgräns:</strong> Enligt Ramtid får utförd tid överskrida beställd
+            tid med max 10%. Överskridning kräver förklaring till biståndshandläggare senast den
+            20:e nästkommande månad.
+          </p>
+        </div>
       )}
     </div>
   );
