@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import CustomersPage from './pages/CustomersPage';
+import EditCustomerPage from './pages/EditCustomerPage';
 import EmployeesPage from './pages/EmployeesPage';
 import SchedulePage from './pages/SchedulePage';
 import MeasuresPage from './pages/MeasuresPage';
@@ -13,6 +14,7 @@ export default function App() {
       <Route path="/home" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/customers" element={<CustomersPage />} />
+      <Route path="/customers/:id" element={<EditCustomerPage />} />
       <Route path="/employees" element={<EmployeesPage />} />
       <Route path="/schedule" element={<SchedulePage />} />
       <Route path="/measures" element={<MeasuresPage />} />

@@ -1,13 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/client';
 
 export function useAuth() {
   const navigate = useNavigate();
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const response = await api.post('/auth/login', credentials);
+      const response = await apiClient.post('/auth/login', credentials);
       return response.data;
     },
     onSuccess: (data) => {

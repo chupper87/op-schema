@@ -1,55 +1,39 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogPanel, DialogBackdrop } from '@headlessui/react';
 import Header from '../components/Header';
 import CustomerForm from '../features/customers/CustomerForm';
 import { Plus } from 'phosphor-react';
-
-interface Customer {
-  id: number;
-  name: string;
-  personalNumber: string;
-  address: string;
-  phone: string;
-}
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchCustomers, createCustomer, type CustomerCreateData } from '../api/customerApi';
 
 export default function CustomersPage() {
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
-  const [customers, setCustomers] = useState<Customer[]>([
-    {
-      id: 1,
-      name: 'Anna Andersson',
-      personalNumber: '19850615-1234',
-      address: 'Storgatan 1',
-      phone: '070-1234567',
+
+  const {
+    data: customers = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['customers'],
+    queryFn: fetchCustomers,
+  });
+
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: createCustomer,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      setShowForm(false);
     },
-    {
-      id: 2,
-      name: 'Bengt Berg',
-      personalNumber: '19720320-5678',
-      address: 'Lillgatan 5',
-      phone: '070-9876543',
-    },
-  ]);
+  });
 
-  // Handler to add a new customer
-  const handleAddCustomer = (customerData: {
-    name: string;
-    personalNumber: string;
-    address: string;
-    phone: string;
-  }) => {
-    const newId = customers.length > 0 ? Math.max(...customers.map((c) => c.id)) + 1 : 1;
-
-    const newCustomer: Customer = {
-      id: newId,
-      ...customerData,
-    };
-
-    setCustomers([...customers, newCustomer]);
-    setShowForm(false);
+  const handleAddCustomer = (customerData: CustomerCreateData) => {
+    createMutation.mutate(customerData);
   };
 
-  // Handler to close the form
   const handleCancelForm = () => {
     setShowForm(false);
   };
@@ -68,61 +52,96 @@ export default function CustomersPage() {
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-indigo-900 px-4 py-2 text-white transition-colors hover:bg-indigo-800"
             >
               <Plus size={20} weight="bold" />
-              Lägg till vårdtagare
+              Ny kund
             </button>
           </div>
 
           {/* Kundlista */}
-          <div className="overflow-hidden rounded-xl bg-white shadow-md">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Namn
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Personnummer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Adress
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Telefon
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase">
-                    Åtgärder
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {customers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
-                      {customer.name}
-                    </td>
-                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                      {customer.personalNumber}
-                    </td>
-                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                      {customer.address}
-                    </td>
-                    <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-                      {customer.phone}
-                    </td>
-                    <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
-                      <button className="mr-4 text-indigo-600 hover:text-indigo-900">
-                        Redigera
-                      </button>
-                      <button className="text-red-600 hover:text-red-900">Ta bort</button>
-                    </td>
+          {isLoading && (
+            <div className="rounded-xl bg-white p-12 text-center shadow-md">
+              <p className="text-gray-500">Laddar...</p>
+            </div>
+          )}
+          {isError && (
+            <div className="rounded-xl bg-white p-12 text-center shadow-md">
+              <p className="text-red-500">Kunde inte hämta data.</p>
+            </div>
+          )}
+
+          {!isLoading && !isError && customers.length > 0 && (
+            <div className="overflow-hidden rounded-xl bg-white shadow-md">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                      Namn
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                      Nyckelnummer
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                      Adress
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                      Omsorgsnivå
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase">
+                      Beviljade timmar
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase">
+                      Åtgärder
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {customers.map((customer) => (
+                    <tr key={customer.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+                        {customer.first_name} {customer.last_name}
+                      </td>
+                      <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                        {customer.key_number}
+                      </td>
+                      <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                        {customer.address}
+                      </td>
+                      <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${
+                            customer.care_level === 'high'
+                              ? 'bg-red-100 text-red-800'
+                              : customer.care_level === 'medium'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-green-100 text-green-800'
+                          }`}
+                        >
+                          {customer.care_level === 'high'
+                            ? 'Hög'
+                            : customer.care_level === 'medium'
+                              ? 'Medel'
+                              : 'Låg'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+                        {customer.approved_hours} h
+                      </td>
+                      <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
+                        <button
+                          onClick={() => navigate(`/customers/${customer.id}`)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          Redigera
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {/* Tom lista meddelande */}
-          {customers.length === 0 && (
+          {!isLoading && !isError && customers.length === 0 && (
             <div className="rounded-xl bg-white p-12 text-center shadow-md">
               <p className="text-gray-500">Inga vårdtagare ännu. Lägg till din första!</p>
             </div>

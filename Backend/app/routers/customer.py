@@ -24,6 +24,15 @@ from ..crud.customer import (
     customer_exists,
     set_customer_status,
 )
+from ..crud.customer_measure import (
+    create_customer_measure,
+    delete_customer_measure,
+    get_customer_measures,
+)
+from ..schemas.relations import (
+    CustomerMeasureOutSchema,
+    CustomerMeasureCreateSchema,
+)
 
 
 router = APIRouter(tags=["customer"], prefix="/customers")
@@ -192,3 +201,103 @@ async def set_customer_status_endpoint(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Customer with ID {customer_id} not found",
         )
+
+
+# =============================================================================
+# Customer Measures Endpoints
+# Endpoints för att hantera insatser (measures) kopplade till kunder
+# =============================================================================
+
+
+@router.get(
+    "/{customer_id}/measures",
+    response_model=list[CustomerMeasureOutSchema],
+    status_code=status.HTTP_200_OK,
+)
+async def get_customer_measures_endpoint(
+    customer_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    """
+    Hämtar alla insatser för en specifik kund.
+
+    Path: GET /customers/{customer_id}/measures
+    """
+    measures = get_customer_measures(db, customer_id=customer_id)
+
+    logger.info(
+        f"Admin {current_user.username} retrieved {len(measures)} measures "
+        f"for customer {customer_id}"
+    )
+
+    return measures
+
+
+@router.post(
+    "/{customer_id}/measures",
+    response_model=CustomerMeasureOutSchema,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_customer_measure_endpoint(
+    customer_id: int,
+    data: CustomerMeasureCreateSchema,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    """
+    Lägger till en insats till en kund.
+
+    Path: POST /customers/{customer_id}/measures
+    """
+    try:
+        customer_measure = create_customer_measure(
+            db, customer_id=customer_id, data=data
+        )
+
+        logger.info(
+            f"Admin {current_user.username} added measure {data.measure_id} "
+            f"to customer {customer_id}"
+        )
+
+        return customer_measure
+
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Measure {data.measure_id} already exists for customer {customer_id} "
+            f"or invalid measure_id/customer_id",
+        )
+
+
+@router.delete(
+    "/{customer_id}/measures/{customer_measure_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_customer_measure_endpoint(
+    customer_id: int,
+    customer_measure_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin),
+):
+    """
+    Tar bort en insats från en kund.
+
+    Path: DELETE /customers/{customer_id}/measures/{customer_measure_id}
+    """
+    logger.info(
+        f"Admin {current_user.username} is deleting customer_measure {customer_measure_id} "
+        f"from customer {customer_id}"
+    )
+
+    success = delete_customer_measure(db, customer_measure_id=customer_measure_id)
+
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Customer measure with ID {customer_measure_id} not found",
+        )
+
+    logger.info(
+        f"Customer measure {customer_measure_id} deleted by {current_user.username}"
+    )

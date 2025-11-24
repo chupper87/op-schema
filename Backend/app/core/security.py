@@ -5,7 +5,7 @@ from datetime import datetime, UTC
 
 from passlib.context import CryptContext
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
@@ -55,7 +55,15 @@ def create_database_token(user_id: int, db: Session):
 def verify_token_access(token_str: str, db: Session) -> Token:
     current_time = datetime.now(UTC)
 
-    token = db.execute(select(Token).where(Token.token == token_str)).scalars().first()
+    token = (
+        db.execute(
+            select(Token)
+            .options(joinedload(Token.user).joinedload(User.employee))
+            .where(Token.token == token_str)
+        )
+        .scalars()
+        .first()
+    )
 
     if not token:
         raise HTTPException(
@@ -146,3 +154,4 @@ class RoleChecker:
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"You need permission as {', '.join([role.value for role in self.allowed_roles])}. Your role is {user_role}.",
             )
+        return current_user
