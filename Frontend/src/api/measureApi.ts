@@ -1,5 +1,15 @@
 import { apiClient } from './client';
 
+export interface Measure {
+  id: number;
+  name: string;
+  defaultDuration: number;
+  text: string | null;
+  time_of_day: string | null;
+  time_flexibility: string | null;
+  created: string;
+}
+
 export interface CustomerMeasure {
   id: number;
   customer_id: number;
@@ -46,4 +56,15 @@ export const deleteCustomerMeasure = async (
   customerMeasureId: number
 ): Promise<void> => {
   await apiClient.delete(`/customers/${customerId}/measures/${customerMeasureId}`);
+};
+
+export const fetchMeasures = async (isActive: boolean = true): Promise<Measure[]> => {
+  const params = new URLSearchParams();
+  if (isActive !== undefined) {
+    params.append('is_active', isActive.toString());
+  }
+
+  const response = await apiClient.get(`/measures/?${params.toString()}`);
+
+  return response.data;
 };

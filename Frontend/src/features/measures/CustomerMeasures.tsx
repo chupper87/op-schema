@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   fetchCustomerMeasures,
   deleteCustomerMeasure,
+  createCustomerMeasure,
   type CustomerMeasure,
+  type CustomerMeasureCreateData,
 } from '../../api/measureApi';
 import MeasureList from './MeasureList';
 import TimeBudget from './TimeBudget';
+import AddMeasureModal from './AddMeasureModal';
 
 interface CustomerMeasuresProps {
   customerId: number;
@@ -13,8 +17,12 @@ interface CustomerMeasuresProps {
 }
 
 export default function CustomerMeasures({ customerId, approvedHours }: CustomerMeasuresProps) {
+  // State för modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const queryClient = useQueryClient();
 
+  // Hämta kundens measures
   const {
     data: measures = [],
     isLoading,
@@ -25,6 +33,7 @@ export default function CustomerMeasures({ customerId, approvedHours }: Customer
     queryFn: () => fetchCustomerMeasures(customerId),
   });
 
+  // Mutation för att ta bort measure
   const deleteMutation = useMutation({
     mutationFn: (customerMeasureId: number) => deleteCustomerMeasure(customerId, customerMeasureId),
     onSuccess: () => {
@@ -34,17 +43,33 @@ export default function CustomerMeasures({ customerId, approvedHours }: Customer
     },
   });
 
+  // Mutation för att lägga till measure
+  const createMutation = useMutation({
+    mutationFn: (data: CustomerMeasureCreateData) => createCustomerMeasure(customerId, data),
+    onSuccess: () => {
+      // Uppdatera listan efter lyckad skapelse
+      queryClient.invalidateQueries({
+        queryKey: ['customerMeasures', customerId],
+      });
+    },
+  });
+
+  // Beräkna total planerad tid
   const plannedHours = measures.reduce((total: number, measure: CustomerMeasure) => {
     const duration = measure.customer_duration ?? 0;
     const occurrences = measure.occurrences_per_week ?? 0;
-
     const hoursPerMonth = (duration * occurrences * 4.3) / 60;
-
     return total + hoursPerMonth;
   }, 0);
 
+  // Handler för att ta bort measure
   const handleRemove = (customerMeasureId: number) => {
     deleteMutation.mutate(customerMeasureId);
+  };
+
+  // Handler för att lägga till measure (anropas från modal)
+  const handleAddMeasure = (data: CustomerMeasureCreateData) => {
+    createMutation.mutate(data);
   };
 
   if (isLoading) {
@@ -70,15 +95,25 @@ export default function CustomerMeasures({ customerId, approvedHours }: Customer
       {/* Time Budget visar planerad vs beviljad tid */}
       <TimeBudget approvedHours={approvedHours} plannedHours={Number(plannedHours.toFixed(2))} />
 
-      {/* Knapp för att lägga till ny insats (framtida implementation) */}
+      {/* Knapp för att öppna modal */}
       <div className="flex justify-end">
-        <button className="rounded-lg bg-indigo-900 px-4 py-2 text-white hover:bg-indigo-800">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="rounded-lg bg-indigo-900 px-4 py-2 text-white hover:bg-indigo-800"
+        >
           + Lägg till insats
         </button>
       </div>
 
       {/* Lista över insatser, eller tom state */}
       <MeasureList measures={measures} onRemove={handleRemove} />
+
+      {/* Modal för att lägga till ny insats */}
+      <AddMeasureModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleAddMeasure}
+      />
     </div>
   );
 }
