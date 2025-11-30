@@ -54,11 +54,30 @@ export default function CustomerMeasures({ customerId, approvedHours }: Customer
     },
   });
 
+  /**
+   * Beräknar timmar per månad baserat på frekvens.
+   */
+  const calculateHoursPerMonth = (
+    duration: number,
+    frequency: string,
+    occurrences: number
+  ): number => {
+    switch (frequency) {
+      case 'DAILY':
+        return (duration * 7 * 4.3) / 60;
+      case 'MONTHLY':
+        return (duration * occurrences) / 60;
+      case 'WEEKLY':
+      default:
+        return (duration * occurrences * 4.3) / 60;
+    }
+  };
+
   // Beräkna total planerad tid
   const plannedHours = measures.reduce((total: number, measure: CustomerMeasure) => {
     const duration = measure.customer_duration ?? 0;
     const occurrences = measure.occurrences_per_week ?? 0;
-    const hoursPerMonth = (duration * occurrences * 4.3) / 60;
+    const hoursPerMonth = calculateHoursPerMonth(duration, measure.frequency, occurrences);
     return total + hoursPerMonth;
   }, 0);
 
@@ -99,7 +118,7 @@ export default function CustomerMeasures({ customerId, approvedHours }: Customer
       <div className="flex justify-end">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="rounded-lg bg-indigo-900 px-4 py-2 text-white hover:bg-indigo-800"
+          className="cursor-pointer rounded-lg bg-indigo-900 px-4 py-2 text-white hover:bg-indigo-800"
         >
           + Lägg till insats
         </button>

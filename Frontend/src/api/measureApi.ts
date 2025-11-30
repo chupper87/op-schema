@@ -3,11 +3,19 @@ import { apiClient } from './client';
 export interface Measure {
   id: number;
   name: string;
-  defaultDuration: number;
+  default_duration: number;
   text: string | null;
   time_of_day: string | null;
   time_flexibility: string | null;
   created: string;
+}
+
+export interface MeasureCreateData {
+  name: string;
+  default_duration: number;
+  text: string | null;
+  time_of_day?: string | null;
+  time_flexibility?: string | null;
 }
 
 export interface CustomerMeasure {
@@ -66,5 +74,10 @@ export const fetchMeasures = async (isActive: boolean = true): Promise<Measure[]
 
   const response = await apiClient.get(`/measures/?${params.toString()}`);
 
+  return response.data;
+};
+
+export const createMeasure = async (data: MeasureCreateData): Promise<Measure> => {
+  const response = await apiClient.post('/measures/', data);
   return response.data;
 };
