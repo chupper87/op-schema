@@ -1,47 +1,66 @@
 import Header from '../components/Header';
 import { Plus } from 'phosphor-react';
 import MeasureCard from '../features/measures/MeasureCard';
-import { useState } from 'react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { deleteMeasure } from '../api/measureApi';
+import { fetchMeasures } from '../api/measureApi';
 
 export default function MeasuresPage() {
-  const [measures] = useState([
-    {
-      id: 1,
-      name: 'Dusch',
-      default_duration: 15,
-      text: 'Morgonhjälp + dusch',
-      time_of_day: 'Morgon',
+  const queryClient = useQueryClient();
+
+  // Hämta alla measures från backend
+  const {
+    data: measures = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['measures'],
+    queryFn: () => fetchMeasures(true), // true = bara aktiva
+  });
+
+  // Mutation för att radera measure
+  const deleteMutation = useMutation({
+    mutationFn: (measureId: number) => deleteMeasure(measureId),
+    onSuccess: () => {
+      // Uppdatera listan efter radering
+      queryClient.invalidateQueries({ queryKey: ['measures'] });
     },
-    {
-      id: 2,
-      name: 'Frukost',
-      default_duration: 20,
-      text: 'Morgonhjälp + frukost',
-      time_of_day: 'Morgon',
+    onError: (error) => {
+      // TODO: Visa toast/meddelande om fel
+      console.error('Kunde inte radera:', error);
+      alert('Kunde inte radera insatsen. Den kanske används av en kund?');
     },
-    {
-      id: 3,
-      name: 'Tillsyn',
-      default_duration: 10,
-      text: 'Hjälp med medicinering',
-      time_of_day: 'Morgon',
-    },
-    {
-      id: 4,
-      name: 'Lunch',
-      default_duration: 30,
-      text: 'Hjälp med lunch',
-      time_of_day: 'Mitt på dagen',
-    },
-    { id: 5, name: 'Middag', default_duration: 30, text: 'Hjälp med middag', time_of_day: 'Kväll' },
-    {
-      id: 6,
-      name: 'Kvällshjälp',
-      default_duration: 20,
-      text: 'Kvällshjälp + sänggående',
-      time_of_day: 'Kväll',
-    },
-  ]);
+  });
+
+  // Handler för delete
+  const handleDelete = (measureId: number) => {
+    if (window.confirm('Är du säker på att du vill radera denna insats?')) {
+      deleteMutation.mutate(measureId);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col bg-indigo-100">
+        <Header />
+        <div className="flex flex-1 items-center justify-center">
+          <p className="text-gray-500">Laddar insatser...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex min-h-screen flex-col bg-indigo-100">
+        <Header />
+        <div className="flex flex-1 items-center justify-center">
+          <p className="text-red-600">Kunde inte ladda insatser.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-indigo-100">
@@ -72,6 +91,7 @@ export default function MeasuresPage() {
                 timeOfDay={measure.time_of_day}
                 timeFlexibility={'Flexibel'}
                 isActive={true}
+                onDelete={handleDelete}
               />
             ))}
           </div>

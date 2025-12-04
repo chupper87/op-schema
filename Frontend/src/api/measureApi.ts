@@ -81,3 +81,7 @@ export const createMeasure = async (data: MeasureCreateData): Promise<Measure> =
   const response = await apiClient.post('/measures/', data);
   return response.data;
 };
+
+export const deleteMeasure = async (measureId: number): Promise<void> => {
+  await apiClient.delete(`/measures/${measureId}`);
+};
